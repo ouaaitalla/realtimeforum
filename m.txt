@@ -1,0 +1,139 @@
+.
+├── backend
+│   ├── db
+│   │   └── db.go
+│   ├── handlers
+│   │   ├── authHandlers
+│   │   │   ├── loginHandler.go
+│   │   │   └── registerHandler.go
+│   │   ├── comment-Handlers
+│   │   │   ├── creatCommentHandler.go
+│   │   │   ├── deleteCommentHandler.go
+│   │   │   └── getCommentHandler.go
+│   │   ├── post-Handlers
+│   │   │   ├── creatPostHandler.go
+│   │   │   ├── deletePostHandler.go
+│   │   │   └── getPostHandler.go
+│   │   └── user-Hnadlers
+│   │       ├── apdateUserHandler.go
+│   │       └── getUserHandler.go
+│   ├── helpers
+│   │   ├── response.go
+│   │   ├── security.go
+│   │   └── session.go
+│   ├── httpx
+│   │   └── httpx.go
+│   ├── main.go
+│   ├── middleware
+│   │   ├── authMiddleware.go
+│   │   ├── mainMiddleware.go
+│   │   └── methodMiddleware.go
+│   ├── models
+│   │   └── models.go
+│   ├── routes
+│   │   └── routes.go
+│   └── websocket
+│       └── handler.go
+├── database
+│   ├── initDb.go
+│   └── schema.sql
+├── DB.db
+├── frontend
+│   ├── assets
+│   │   └── css
+│   │       ├── auth.css
+│   │       ├── chat.css
+│   │       ├── comments.css
+│   │       ├── feed.css
+│   │       ├── main.css
+│   │       ├── modal.css
+│   │       ├── navbar.css
+│   │       ├── post.css
+│   │       └── responsive.css
+│   ├── index.html
+│   ├── js
+│   │   ├── api
+│   │   │   ├── auth.js
+│   │   │   ├── chat.js
+│   │   │   ├── comments.js
+│   │   │   ├── posts.js
+│   │   │   └── users.js
+│   │   ├── app.js
+│   │   ├── components
+│   │   │   ├── chatList.js
+│   │   │   ├── chatWindow.js
+│   │   │   ├── commentCard.js
+│   │   │   ├── commentForm.js
+│   │   │   ├── loader.js
+│   │   │   ├── messageBubble.js
+│   │   │   ├── modal.js
+│   │   │   ├── navbar.js
+│   │   │   ├── notification.js
+│   │   │   ├── onlineUsers.js
+│   │   │   ├── postCard.js
+│   │   │   ├── postForm.js
+│   │   │   └── sidebar.js
+│   │   ├── pages
+│   │   │   ├── error.js
+│   │   │   ├── home.js
+│   │   │   ├── login.js
+│   │   │   ├── profile.js
+│   │   │   └── register.js
+│   │   ├── router.js
+│   │   ├── services
+│   │   │   ├── authService.js
+│   │   │   ├── chatService.js
+│   │   │   ├── commentService.js
+│   │   │   ├── postService.js
+│   │   │   └── websocketService.js
+│   │   ├── state.js
+│   │   ├── templates
+│   │   │   ├── chatTemplate.js
+│   │   │   ├── homeTemplate.js
+│   │   │   ├── loginTemplate.js
+│   │   │   ├── postTemplate.js
+│   │   │   └── registerTemplate.js
+│   │   ├── utils
+│   │   │   ├── constants.js
+│   │   │   ├── date.js
+│   │   │   ├── debounce.js
+│   │   │   ├── fetch.js
+│   │   │   ├── render.js
+│   │   │   ├── storage.js
+│   │   │   ├── throttle.js
+│   │   │   └── validator.js
+│   │   └── websocket
+│   │       ├── messageEvents.js
+│   │       ├── notificationEvents.js
+│   │       ├── onlineEvents.js
+│   │       └── socket.js
+│   ├── README.md
+│   └── server.js
+├── go.mod
+├── go.sum
+├── m.txt
+└── Untitled-1.sh
+
+
+
+
+users
+ │
+ ├── sessions
+ │
+ ├── posts
+ │      │
+ │      ├── comments
+ │      │        │
+ │      │        └── comment_reactions
+ │      │
+ │      ├── post_reactions
+ │      │
+ │      └── post_categories
+ │               │
+ │               └── categories
+ │
+ └── messages
+        │
+        └── receiver (users)
+

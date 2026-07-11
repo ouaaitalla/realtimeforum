@@ -5,6 +5,8 @@
 │   ├── handlers
 │   │   ├── authHandlers
 │   │   │   ├── loginHandler.go
+│   │   │   ├── LogoutHandler.go
+│   │   │   ├── MeHandler.go
 │   │   │   └── registerHandler.go
 │   │   ├── comment-Handlers
 │   │   │   ├── creatCommentHandler.go
@@ -26,18 +28,33 @@
 │   ├── main.go
 │   ├── middleware
 │   │   ├── authMiddleware.go
+│   │   ├── context.go
+│   │   ├── corsMiddleware.go
 │   │   ├── mainMiddleware.go
 │   │   └── methodMiddleware.go
 │   ├── models
-│   │   └── models.go
+│   │   ├── category.go
+│   │   ├── comment.go
+│   │   ├── message.go
+│   │   ├── post.go
+│   │   ├── reaction.go
+│   │   ├── requests.go
+│   │   ├── session.go
+│   │   └── user.go
+│   ├── repository
+│   │   ├── commentRepository.go
+│   │   ├── messageRepository.go
+│   │   ├── postRepository.go
+│   │   ├── sessionRepository.go
+│   │   └── userRepository.go
 │   ├── routes
 │   │   └── routes.go
 │   └── websocket
 │       └── handler.go
 ├── database
+│   ├── forum.db
 │   ├── initDb.go
 │   └── schema.sql
-├── DB.db
 ├── frontend
 │   ├── assets
 │   │   └── css
@@ -45,6 +62,7 @@
 │   │       ├── chat.css
 │   │       ├── comments.css
 │   │       ├── feed.css
+│   │       ├── layout.css
 │   │       ├── main.css
 │   │       ├── modal.css
 │   │       ├── navbar.css
@@ -73,6 +91,8 @@
 │   │   │   ├── postCard.js
 │   │   │   ├── postForm.js
 │   │   │   └── sidebar.js
+│   │   ├── layouts
+│   │   │   └── appLayout.js
 │   │   ├── pages
 │   │   │   ├── error.js
 │   │   │   ├── home.js
@@ -111,29 +131,7 @@
 │   └── server.js
 ├── go.mod
 ├── go.sum
-├── m.txt
+├── tree.txt
 └── Untitled-1.sh
 
-
-
-
-users
- │
- ├── sessions
- │
- ├── posts
- │      │
- │      ├── comments
- │      │        │
- │      │        └── comment_reactions
- │      │
- │      ├── post_reactions
- │      │
- │      └── post_categories
- │               │
- │               └── categories
- │
- └── messages
-        │
-        └── receiver (users)
-
+27 directories, 107 files

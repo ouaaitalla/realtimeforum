@@ -3,7 +3,7 @@ PRAGMA foreign_keys = ON;
 -------------------------------------------------
 -- USERS
 -------------------------------------------------
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     nickname TEXT NOT NULL UNIQUE,
@@ -16,7 +16,7 @@ CREATE TABLE users (
     age INTEGER,
     gender TEXT,
 
-    avatar TEXT DEFAULT NULL,
+    avatar TEXT DEFAULT '',
 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -24,7 +24,7 @@ CREATE TABLE users (
 -------------------------------------------------
 -- SESSIONS
 -------------------------------------------------
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY,
 
     user_id INTEGER NOT NULL UNIQUE,
@@ -41,7 +41,7 @@ CREATE TABLE sessions (
 -------------------------------------------------
 -- POSTS
 -------------------------------------------------
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     user_id INTEGER NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE posts (
 -------------------------------------------------
 -- CATEGORIES
 -------------------------------------------------
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     name TEXT NOT NULL UNIQUE
@@ -71,7 +71,7 @@ CREATE TABLE categories (
 -------------------------------------------------
 -- POST CATEGORIES
 -------------------------------------------------
-CREATE TABLE post_categories (
+CREATE TABLE IF NOT EXISTS post_categories (
     post_id INTEGER NOT NULL,
 
     category_id INTEGER NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE post_categories (
 -------------------------------------------------
 -- COMMENTS
 -------------------------------------------------
-CREATE TABLE comments (
+CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     post_id INTEGER NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE comments (
 -------------------------------------------------
 -- POST REACTIONS
 -------------------------------------------------
-CREATE TABLE post_reactions (
+CREATE TABLE IF NOT EXISTS post_reactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     post_id INTEGER NOT NULL,
@@ -136,7 +136,7 @@ CREATE TABLE post_reactions (
 -------------------------------------------------
 -- COMMENT REACTIONS
 -------------------------------------------------
-CREATE TABLE comment_reactions (
+CREATE TABLE IF NOT EXISTS comment_reactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     comment_id INTEGER NOT NULL,
@@ -159,7 +159,7 @@ CREATE TABLE comment_reactions (
 -------------------------------------------------
 -- PRIVATE MESSAGES
 -------------------------------------------------
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
 
     sender_id INTEGER NOT NULL,
@@ -184,23 +184,32 @@ CREATE TABLE messages (
 -------------------------------------------------
 -- INDEXES
 -------------------------------------------------
-CREATE INDEX idx_posts_user
+CREATE INDEX IF NOT EXISTS idx_posts_user
 ON posts(user_id);
 
-CREATE INDEX idx_comments_post
+CREATE INDEX IF NOT EXISTS idx_comments_post
 ON comments(post_id);
 
-CREATE INDEX idx_comments_user
+CREATE INDEX IF NOT EXISTS idx_comments_user
 ON comments(user_id);
 
-CREATE INDEX idx_messages_sender
+CREATE INDEX IF NOT EXISTS idx_messages_sender
 ON messages(sender_id);
 
-CREATE INDEX idx_messages_receiver
+CREATE INDEX IF NOT EXISTS idx_messages_receiver
 ON messages(receiver_id);
 
-CREATE INDEX idx_posts_created
+CREATE INDEX IF NOT EXISTS idx_posts_created
 ON posts(created_at DESC);
 
-CREATE INDEX idx_messages_created
+CREATE INDEX IF NOT EXISTS idx_messages_created
 ON messages(created_at DESC);
+
+
+INSERT OR IGNORE INTO categories (id, name) VALUES
+(1, 'General'),
+(2, 'Programming'),
+(3, 'Sports'),
+(4, 'Technology'),
+(5, 'News');
+

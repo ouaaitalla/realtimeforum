@@ -2,6 +2,7 @@ package authHandlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -30,6 +31,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := repository.GetUserByEmail(req.Email)
 	if err != nil {
+		log.Println("GetUserByEmail error:", err)
 		helpers.ErrorResponse(w, http.StatusInternalServerError, "Database error")
 		return
 	}
@@ -89,3 +91,4 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		user,
 	)
 }
+

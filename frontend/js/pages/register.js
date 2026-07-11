@@ -1,8 +1,8 @@
 import { registerTemplate } from "../templates/registerTemplate.js";
 import { register } from "../services/authService.js";
-import { showNotification } from "../components/notification.js";
 import { validateRegister } from "../utils/validator.js";
 import { showNotification } from "../components/notification.js";
+import { navigate } from "../router.js";
 
 export function registerPage() {
     const app = document.getElementById("app");
@@ -13,7 +13,7 @@ export function registerPage() {
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
-
+        console.log("Submit clicked");
         const user = {
             nickname: document.getElementById("nickname").value.trim(),
             first_name: document.getElementById("first-name").value.trim(),
@@ -39,6 +39,9 @@ export function registerPage() {
                 "Registration successful!",
                 "success"
             );
+            setTimeout(() => {
+                navigate("/login");
+            }, 700);
         } catch (error) {
             showNotification(
                 error.message,

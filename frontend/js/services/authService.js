@@ -1,4 +1,5 @@
 import { registerRequest, loginRequest } from "../api/auth.js";
+import { logoutRequest } from "../api/auth.js";
 
 export async function register(user) {
     const response = await registerRequest(user);
@@ -29,5 +30,15 @@ export async function checkAuth() {
         return true;
     } catch (error) {
         return false;
+    }
+}
+
+
+
+export async function logout() {
+    const response = await logoutRequest();
+
+    if (!response.success) {
+        throw new Error(response.message);
     }
 }

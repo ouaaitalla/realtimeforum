@@ -19,3 +19,13 @@ export function meRequest() {
         method: "GET",
     });
 }
+
+export async function logoutRequest() {
+    const response = await fetch("http://localhost:8080/logout", {
+        method: "POST",
+        credentials: "include",
+    });
+
+    return await response.json();
+}
+

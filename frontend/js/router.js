@@ -1,14 +1,13 @@
-// import { homePage } from "./pages/home.js";
+import { homePage } from "./pages/home.js";
 import { loginPage } from "./pages/login.js";
 import { registerPage } from "./pages/register.js";
-// import { profilePage } from "./pages/profile.js";
 import { checkAuth } from "./services/authService.js";
 
+
 const routes = {
-    // "/": homePage,
+    "/": homePage,
     "/login": loginPage,
     "/register": registerPage,
-    // "/profile": profilePage,
 };
 
 

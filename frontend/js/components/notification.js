@@ -40,5 +40,5 @@ export function showNotification(message, type = "success") {
             notification.remove();
         }, 300);
 
-    }, 3000);
+    }, 1000);
 }

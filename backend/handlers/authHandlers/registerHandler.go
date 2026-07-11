@@ -27,7 +27,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		req.FirstName == "" ||
 		req.LastName == "" ||
 		req.Email == "" ||
-		req.Password == "" {
+		req.Password == "" ||
+		req.Gender != "Male" && req.Gender != "Female" ||
+		req.Age <= 13 {
 
 		helpers.ErrorResponse(w, http.StatusBadRequest, "All fields are required")
 		return

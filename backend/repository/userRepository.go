@@ -3,14 +3,14 @@ package repository
 import (
 	"database/sql"
 
-	"real-time-forum/backend/db"
+	"real-time-forum/database"
 	"real-time-forum/backend/models"
 )
 
 func UserExists(email, nickname string) (bool, error) {
 	var id int
 
-	err := db.DB.QueryRow(
+	err := database.DB.QueryRow(
 		`SELECT id FROM users WHERE email = ? OR nickname = ? LIMIT 1`,
 		email,
 		nickname,
@@ -28,7 +28,7 @@ func UserExists(email, nickname string) (bool, error) {
 }
 
 func CreateUser(user models.RegisterRequest, hashedPassword string) error {
-	_, err := db.DB.Exec(`
+	_, err := database.DB.Exec(`
 		INSERT INTO users
 		(nickname, first_name, last_name, email, password_hash, age, gender)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -49,7 +49,7 @@ func CreateUser(user models.RegisterRequest, hashedPassword string) error {
 func GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 
-	err := db.DB.QueryRow(`
+	err := database.DB.QueryRow(`
 		SELECT
 			id,
 			nickname,
@@ -90,7 +90,7 @@ func GetUserByEmail(email string) (*models.User, error) {
 func GetUserByID(id int) (*models.User, error) {
 	var user models.User
 
-	err := db.DB.QueryRow(`
+	err := database.DB.QueryRow(`
 		SELECT
 			id,
 			nickname,

@@ -110,7 +110,48 @@ export function validateRegister(data) {
         errors.push(ageError);
     }
 
+    if (!data.gender) {
+        return {
+            valid: false,
+            message: "Please select a gender."
+        };
+    }
+
 
     return errors;
 }
 
+export function validateLogin(data) {
+
+    const errors = [];
+
+
+    const emailError = validateRequired(
+        data.email,
+        "Email"
+    );
+
+    if (emailError) {
+        errors.push(emailError);
+    } else {
+
+        const emailFormatError = validateEmail(data.email);
+
+        if (emailFormatError) {
+            errors.push(emailFormatError);
+        }
+    }
+
+
+    const passwordError = validateRequired(
+        data.password,
+        "Password"
+    );
+
+    if (passwordError) {
+        errors.push(passwordError);
+    }
+
+
+    return errors;
+}

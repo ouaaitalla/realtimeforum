@@ -1,6 +1,7 @@
 import { createPost } from "../services/postService.js";
 import { closeModal } from "./modal.js";
 import { showNotification } from "./notification.js";
+import { postCard } from "./postCard.js";
 
 
 
@@ -99,18 +100,21 @@ export function initCreatePostForm() {
         };
 
         try {
-
-            await createPost(post);
-
+            const newPost = await createPost(post);
+            closeModal();
             showNotification(
                 "Post created successfully!",
                 "success"
             );
+            const postsContainer = document.getElementById("posts-container");
 
-            closeModal();
-
+            if (postsContainer) {
+                postsContainer.insertAdjacentHTML(
+                    "afterbegin",
+                    postCard(newPost)
+                );
+            }
         } catch (error) {
-
             showNotification(
                 error.message,
                 "error"

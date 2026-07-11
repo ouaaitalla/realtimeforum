@@ -2,6 +2,7 @@ import { logout } from "../services/authService.js";
 import { navigate } from "../router.js";
 import { postForm } from "./postForm.js";
 import { openModal } from "./modal.js";
+import { initCreatePostForm } from "./postForm.js"
 
 
 export function navbar() {
@@ -58,8 +59,7 @@ export function initNavbar() {
     if (createPostBtn) {
         createPostBtn.addEventListener("click", () => {
             // Open Create Post Modal
-            openModal(postForm());
-            initCreatePostForm();
+            openModal(postForm(),initCreatePostForm);
         });
     }
 

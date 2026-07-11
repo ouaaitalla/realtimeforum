@@ -20,11 +20,9 @@ func SetupRoutes() http.Handler {
 
 	mux.HandleFunc("/me", authHandlers.MeHandler)
 
-	mux.Handle("/posts",middleware.AuthMiddleware(http.HandlerFunc(posthandlers.CreatePostHandler)))
+	mux.Handle("/posts",middleware.AuthMiddleware(http.HandlerFunc(posthandlers.PostsHandler),),)
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("API Server Running"))
-	})
-
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {w.Write([]byte("API Server Running"))})
+	
 	return mux
 }

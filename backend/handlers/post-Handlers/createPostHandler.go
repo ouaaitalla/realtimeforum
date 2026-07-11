@@ -53,7 +53,7 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	postID, err := repository.CreatePost(user.ID, req)
+	post, err := repository.CreatePost(user.ID, req)
 	if err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, "Failed to create post")
 		return
@@ -63,8 +63,6 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 		w,
 		http.StatusCreated,
 		"Post created successfully",
-		map[string]interface{}{
-			"post_id": postID,
-		},
+		post,
 	)
 }

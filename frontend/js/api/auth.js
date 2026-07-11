@@ -20,12 +20,8 @@ export function meRequest() {
     });
 }
 
-export async function logoutRequest() {
-    const response = await fetch("http://localhost:8080/logout", {
+export function logoutRequest() {
+    return apiFetch("/logout", {
         method: "POST",
-        credentials: "include",
     });
-
-    return await response.json();
 }
-

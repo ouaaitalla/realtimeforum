@@ -11,3 +11,17 @@
     flex-direction: column;
     gap: 20px;
 }
+
+.feed-title {
+    margin-bottom: 25px;
+
+    font-size: 26px;
+    font-weight: 700;
+}
+
+#posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+

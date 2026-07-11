@@ -3,11 +3,10 @@ import { register } from "../services/authService.js";
 import { validateRegister } from "../utils/validator.js";
 import { showNotification } from "../components/notification.js";
 import { navigate } from "../router.js";
+import { render } from "../utils/render.js";
 
 export function registerPage() {
-    const app = document.getElementById("app");
-
-    app.innerHTML = registerTemplate();
+   render(registerTemplate());
 
     const form = document.getElementById("register-form");
 

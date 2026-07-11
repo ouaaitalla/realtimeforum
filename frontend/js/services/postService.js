@@ -1,11 +1,10 @@
-import { createPostRequest } from "../api/posts.js";
+
+import {createPostRequest, getPostsRequest,} from "../api/posts.js";
 
 export async function createPost(post) {
-    const response = await createPostRequest(post);
+    return (await createPostRequest(post)).data;
+}  
 
-    if (!response.success) {
-        throw new Error(response.message);
-    }
-
-    return response.data;
+export async function getPosts() {
+    return (await getPostsRequest()).data;
 }

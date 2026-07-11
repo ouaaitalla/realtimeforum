@@ -1,28 +1,19 @@
 import { registerRequest, loginRequest } from "../api/auth.js";
 import { logoutRequest } from "../api/auth.js";
+import { meRequest } from "../api/auth.js";
+
 
 export async function register(user) {
-    const response = await registerRequest(user);
-
-    if (!response.success) {
-        throw new Error(response.message);
-    }
-
-    return response.data;
+    return (await registerRequest(user)).data;
 }
 
 export async function login(credentials) {
-    const response = await loginRequest(credentials);
-
-    if (!response.success) {
-        throw new Error(response.message);
-    }
-
-    return response.data;
+    return (await loginRequest(credentials)).data;
 }
 
-import { meRequest } from "../api/auth.js";
-
+export async function logout() {
+    await logoutRequest();
+}
 
 export async function checkAuth() {
     try {
@@ -30,15 +21,5 @@ export async function checkAuth() {
         return true;
     } catch (error) {
         return false;
-    }
-}
-
-
-
-export async function logout() {
-    const response = await logoutRequest();
-
-    if (!response.success) {
-        throw new Error(response.message);
     }
 }

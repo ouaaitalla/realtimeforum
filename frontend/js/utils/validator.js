@@ -111,10 +111,7 @@ export function validateRegister(data) {
     }
 
     if (!data.gender) {
-        return {
-            valid: false,
-            message: "Please select a gender."
-        };
+        errors.push("Please select a gender.");
     }
 
 
@@ -155,3 +152,4 @@ export function validateLogin(data) {
 
     return errors;
 }
+

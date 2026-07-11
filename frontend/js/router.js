@@ -2,6 +2,7 @@ import { homePage } from "./pages/home.js";
 import { loginPage } from "./pages/login.js";
 import { registerPage } from "./pages/register.js";
 import { checkAuth } from "./services/authService.js";
+import { errorPage } from "./pages/error.js";
 
 
 const routes = {
@@ -28,9 +29,15 @@ export async function router() {
         return;
     }
 
-    const page = routes[path] || routes["/"];
+    const page = routes[path];
+
+    if (!page) {
+        errorPage();
+        return;
+    }
 
     page();
+
 }
 
 

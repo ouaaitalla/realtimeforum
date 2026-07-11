@@ -1,9 +1,10 @@
-export function openModal(content) {
+
+
+export function openModal(content, onOpen = null) {
 
     let modal = document.getElementById("modal");
 
     if (!modal) {
-
         modal = document.createElement("div");
         modal.id = "modal";
         modal.className = "modal-overlay";
@@ -25,13 +26,19 @@ export function openModal(content) {
 
     modal.classList.add("show");
 
-    document.getElementById("close-modal").addEventListener("click", closeModal);
+    document
+        .getElementById("close-modal")
+        .addEventListener("click", closeModal);
 
     modal.addEventListener("click", (event) => {
         if (event.target === modal) {
             closeModal();
         }
     });
+
+    if (typeof onOpen === "function") {
+        onOpen();
+    }
 }
 
 export function closeModal() {
@@ -40,8 +47,5 @@ export function closeModal() {
 
     if (!modal) return;
 
-    modal.classList.remove("show");
-
-    modal.innerHTML = "";
+    modal.remove();
 }
-

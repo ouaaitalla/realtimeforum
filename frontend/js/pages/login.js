@@ -3,17 +3,14 @@ import { login } from "../services/authService.js";
 import { showNotification } from "../components/notification.js";
 import { validateLogin } from "../utils/validator.js";
 import { navigate } from "../router.js";
+import { render } from "../utils/render.js";
 
 
 export function loginPage() {
 
-    const app = document.getElementById("app");
-
-    app.innerHTML = loginTemplate();
-
+    render(loginTemplate());
 
     const form = document.getElementById("login-form");
-
 
     form.addEventListener("submit", async (event) => {
 

@@ -1,6 +1,13 @@
+
+import { navigate } from "../router.js";
+
+
 export function postCard(post) {
     return `
-        <article class="post-card">
+        <article
+            class="post-card"
+            data-post-id="${post.id}"
+        >
 
             <div class="post-header">
 
@@ -17,7 +24,7 @@ export function postCard(post) {
                 </div>
 
                 <div class="post-categories">
-                    ${(post.categories || []).map(category => `
+                    ${post.categories.map(category => `
                         <span class="category-badge">
                             ${category}
                         </span>
@@ -36,23 +43,38 @@ export function postCard(post) {
 
             <div class="post-footer">
 
-                <button class="post-action like-btn" data-id="${post.id}">
-                    👍
-                    <span>${post.likes ?? 0}</span>
+                <button class="post-action-btn">
+                    👍 0
                 </button>
 
-                <button class="post-action dislike-btn" data-id="${post.id}">
-                    👎
-                    <span>${post.dislikes ?? 0}</span>
+                <button class="post-action-btn">
+                    👎 0
                 </button>
 
-                <button class="post-action comments-btn" data-id="${post.id}">
-                    💬
-                    <span>${post.comments_count ?? 0}</span>
+                <button class="post-action-btn">
+                    💬 0
                 </button>
 
             </div>
 
         </article>
     `;
+}
+
+export function initPostCards() {
+
+    const cards = document.querySelectorAll(".post-card");
+
+    cards.forEach(card => {
+
+        card.addEventListener("click", () => {
+
+            const postId = card.dataset.postId;
+
+            navigate(`/posts/${postId}`);
+
+        });
+
+    });
+
 }

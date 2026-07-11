@@ -11,3 +11,11 @@ type Comment struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+
+type CommentResponse struct {
+	ID        int       `json:"id"`
+	PostID    int       `json:"post_id"`
+	Author    string    `json:"author"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+}

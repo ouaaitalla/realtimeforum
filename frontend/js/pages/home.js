@@ -5,8 +5,10 @@ import { render } from "../utils/render.js";
 import { getPosts } from "../services/postService.js";
 import { postCard } from "../components/postCard.js";
 import { showNotification } from "../components/notification.js";
+import { initPostCards } from "../components/postCard.js";
 
-export function homePage() {
+
+export async function homePage() {
 
     render(
         appLayout(homeTemplate())
@@ -14,7 +16,7 @@ export function homePage() {
 
     initNavbar();
 
-    loadPosts();
+    await loadPosts();
 
 }
 
@@ -45,6 +47,8 @@ export async function loadPosts() {
             .map(post => postCard(post))
             .join("");
 
+        initPostCards();
+
     } catch (error) {
 
         container.innerHTML = `
@@ -54,3 +58,4 @@ export async function loadPosts() {
         `;
     }
 }
+

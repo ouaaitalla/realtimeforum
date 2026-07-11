@@ -1,0 +1,249 @@
+/* =========================
+   COMMENTS
+========================= */
+
+.comments-section {
+    margin-top: 30px;
+}
+
+.comments-title {
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1A1953;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* =========================
+   COMMENT CARD
+========================= */
+
+.comment-card {
+    background: #fff;
+    border: 1px solid #e9e9e9;
+    border-radius: 18px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+    transition: .2s ease;
+}
+
+.comment-card:hover {
+    box-shadow: 0 8px 22px rgba(0,0,0,.08);
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+}
+
+.comment-user {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.comment-author {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A1953;
+}
+
+.comment-date {
+    font-size: 13px;
+    color: #8b8b8b;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.comment-content {
+    margin: 0;
+    color: #444;
+    font-size: 15px;
+    line-height: 1.7;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.comment-footer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #f2f2f2;
+}
+
+.comment-action {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #666;
+    cursor: pointer;
+    transition: .2s;
+    user-select: none;
+}
+
+.comment-action:hover {
+    color: #2F2FE4;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.no-comments {
+    background: #fff;
+    border: 1px dashed #d9d9d9;
+    border-radius: 18px;
+    padding: 50px;
+    text-align: center;
+    color: #888;
+}
+
+/* =========================
+   COMMENT FORM
+========================= */
+
+.comment-form {
+    background: #fff;
+    border: 1px solid #e9e9e9;
+    border-radius: 18px;
+    padding: 20px 24px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.comment-input {
+    width: 100%;
+    min-height: 110px;
+    resize: vertical;
+
+    padding: 14px 16px;
+
+    border: 1px solid #ddd;
+    border-radius: 12px;
+
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1.6;
+
+    background: #fafafa;
+    color: #333;
+
+    transition: all 0.2s ease;
+
+    box-sizing: border-box;
+}
+
+.comment-input::placeholder {
+    color: #999;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: #2F2FE4;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(47, 47, 228, 0.12);
+}
+
+.comment-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.comment-submit {
+    background: #2F2FE4;
+    color: #fff;
+
+    border: none;
+    border-radius: 10px;
+
+    padding: 12px 24px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.comment-submit:hover {
+    background: #162E93;
+    transform: translateY(-1px);
+}
+
+.comment-submit:active {
+    transform: translateY(0);
+}
+
+.comment-submit:disabled {
+    background: #b8b8b8;
+    cursor: not-allowed;
+}
+
+/* =========================
+   COMMENT BUTTON
+========================= */
+
+.comment-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 130px;
+    height: 46px;
+
+    padding: 0 22px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: linear-gradient(135deg, #2F2FE4, #162E93);
+    color: #fff;
+
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition: all .25s ease;
+}
+
+.comment-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(47, 47, 228, .25);
+}
+
+.comment-submit:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.comment-submit:disabled {
+    background: #c8c8c8;
+    color: #fff;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}

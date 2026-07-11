@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -195,3 +196,67 @@ func GetCategoriesByPostID(postID int) ([]string, error) {
 
 	return categories, rows.Err()
 }
+
+func GetPostByID(id int) (*models.PostDetailsResponse, error) {
+	var post models.PostDetailsResponse
+
+	err := database.DB.QueryRow(`
+		SELECT
+			p.id,
+			p.title,
+			p.content,
+			u.nickname,
+			p.created_at
+		FROM posts p
+		INNER JOIN users u
+			ON u.id = p.user_id
+		WHERE p.id = ?
+	`, id).Scan(
+		&post.ID,
+		&post.Title,
+		&post.Content,
+		&post.Author,
+		&post.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	categories, err := GetCategoriesByPostID(post.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	post.Categories = categories
+
+	return &post, nil
+}
+
+
+func PostExists(postID int) (bool, error) {
+
+	var id int
+
+	err := database.DB.QueryRow(`
+		SELECT id
+		FROM posts
+		WHERE id = ?
+	`,
+		postID,
+	).Scan(&id)
+
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+

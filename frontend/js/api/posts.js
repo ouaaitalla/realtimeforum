@@ -14,3 +14,10 @@ export function getPostsRequest() {
     });
 }
 
+export function getPostRequest(id) {
+    return apiFetch(`/posts/${id}`, {
+        method: "GET",
+    });
+}
+
+

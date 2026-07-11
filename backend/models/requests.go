@@ -23,7 +23,6 @@ type CreatePostRequest struct {
 }
 
 type CreateCommentRequest struct {
-	PostID  int    `json:"post_id"`
 	Content string `json:"content"`
 }
 

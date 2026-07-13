@@ -41,21 +41,15 @@ export function postCard(post) {
                 ${post.content}
             </p>
 
-            <div class="post-footer">
+          <div class="post-footer">
 
-                <button class="post-action-btn">
-                    👍 0
-                </button>
+            <button class="post-action-btn post-like-btn ${post.user_reaction === 1 ? "active" : ""}"data-post-id="${post.id}">👍 ${post.likes}</button>
 
-                <button class="post-action-btn">
-                    👎 0
-                </button>
+            <button class="post-action-btn post-dislike-btn ${post.user_reaction === -1 ? "active" : ""}"data-post-id="${post.id}">👎 ${post.dislikes}</button>
 
-                <button class="post-action-btn">
-                    💬 0
-                </button>
+            <button class="post-action-btn">💬 ${post.comments}</button>
 
-            </div>
+        </div>
 
         </article>
     `;
@@ -67,7 +61,14 @@ export function initPostCards() {
 
     cards.forEach(card => {
 
-        card.addEventListener("click", () => {
+        card.addEventListener("click", (e) => {
+
+            if (
+                e.target.closest(".post-like-btn") ||
+                e.target.closest(".post-dislike-btn")
+            ) {
+                return;
+            }
 
             const postId = card.dataset.postId;
 
@@ -78,3 +79,4 @@ export function initPostCards() {
     });
 
 }
+

@@ -5,6 +5,8 @@ import { initNavbar } from "../components/navbar.js";
 import { getPost } from "../services/postService.js";
 import { getComments } from "../services/commentService.js";
 import { initCommentForm } from "../components/commentForm.js";
+import { initPostReactions, initCommentReactions } from "../components/reactions.js";
+
 export async function postDetailsPage(id) {
 
     try {
@@ -12,9 +14,7 @@ export async function postDetailsPage(id) {
         const post = await getPost(id);
 
         const comments = await getComments(id);
-        
-       
-        console.log(comments);
+        console.log("COMMENTS:", comments);
 
         render(
             appLayout(
@@ -23,6 +23,10 @@ export async function postDetailsPage(id) {
         );
 
         initNavbar();
+
+        initPostReactions();
+
+        initCommentReactions();
 
         initCommentForm(post.id);
 
@@ -39,4 +43,3 @@ export async function postDetailsPage(id) {
     }
 
 }
-

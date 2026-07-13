@@ -6,12 +6,11 @@ import (
 	"strings"
 
 	"real-time-forum/backend/helpers"
+	"real-time-forum/backend/middleware"
 	"real-time-forum/backend/repository"
 )
 
-
 func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method != http.MethodGet {
 
 		helpers.ErrorResponse(
@@ -23,23 +22,18 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	// Example: /posts/5/comments
 	path := strings.TrimPrefix(
 		r.URL.Path,
 		"/posts/",
 	)
 
-
 	path = strings.TrimSuffix(
 		path,
 		"/comments",
 	)
 
-
 	postID, err := strconv.Atoi(path)
-
-
 	if err != nil {
 
 		helpers.ErrorResponse(
@@ -51,11 +45,23 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user, ok := middleware.GetUser(r)
 
+	if !ok {
 
-	comments, err := repository.GetCommentsByPostID(postID)
+		helpers.ErrorResponse(
+			w,
+			http.StatusUnauthorized,
+			"Unauthorized",
+		)
 
+		return
+	}
 
+	comments, err := repository.GetCommentsByPostID(
+		postID,
+		user.ID,
+	)
 	if err != nil {
 
 		helpers.ErrorResponse(
@@ -66,8 +72,6 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-
 
 	helpers.SuccessResponse(
 		w,

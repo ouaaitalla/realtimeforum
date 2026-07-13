@@ -18,3 +18,4 @@ func GetUser(r *http.Request) (*models.User, bool) {
 
 	return user, true
 }
+

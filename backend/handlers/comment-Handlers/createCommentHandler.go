@@ -234,17 +234,19 @@ func ToggleCommentReactionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, err := repository.ToggleCommentReaction(
+	reactionState, err := repository.ToggleCommentReaction(
 		user.ID,
 		commentID,
 		req.Reaction,
 	)
 	if err != nil {
+
 		helpers.ErrorResponse(
 			w,
 			http.StatusInternalServerError,
-			"Failed to toggle reaction",
+			"Failed to update reaction",
 		)
+
 		return
 	}
 
@@ -252,7 +254,6 @@ func ToggleCommentReactionHandler(w http.ResponseWriter, r *http.Request) {
 		w,
 		http.StatusOK,
 		"Reaction updated successfully",
-		state,
+		reactionState,
 	)
 }
-

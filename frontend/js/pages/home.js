@@ -6,6 +6,7 @@ import { getPosts } from "../services/postService.js";
 import { postCard } from "../components/postCard.js";
 import { showNotification } from "../components/notification.js";
 import { initPostCards } from "../components/postCard.js";
+import { initPostReactions } from "../components/reactions.js";
 
 
 export async function homePage() {
@@ -48,6 +49,7 @@ export async function loadPosts() {
             .join("");
 
         initPostCards();
+        initPostReactions();
 
     } catch (error) {
 

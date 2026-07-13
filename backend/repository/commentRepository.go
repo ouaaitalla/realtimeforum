@@ -57,7 +57,7 @@ func CreateComment(userID int, postID int, req models.CreateCommentRequest) (*mo
 	return &comment, nil
 }
 
-func GetCommentsByPostID(postID int) ([]models.CommentResponse, error) {
+func GetCommentsByPostID(postID int, userID int) ([]models.CommentResponse, error) {
 	rows, err := database.DB.Query(`
 		SELECT
 			c.id,
@@ -77,7 +77,7 @@ func GetCommentsByPostID(postID int) ([]models.CommentResponse, error) {
 
 	defer rows.Close()
 
-	comments := make([]models.CommentResponse, 0)
+	var comments []models.CommentResponse
 
 	for rows.Next() {
 
@@ -94,11 +94,26 @@ func GetCommentsByPostID(postID int) ([]models.CommentResponse, error) {
 			return nil, err
 		}
 
+		reactionState, err := GetCommentReactionState(
+			comment.ID,
+			userID,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		comment.Likes = reactionState.Likes
+		comment.Dislikes = reactionState.Dislikes
+		comment.UserReaction = reactionState.UserReaction
+
 		comments = append(comments, comment)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+	if comments == nil {
+		comments = []models.CommentResponse{}
 	}
 
 	return comments, nil
@@ -125,9 +140,7 @@ func GetCommentReaction(userID, commentID int) (int, error) {
 	return reaction, nil
 }
 
-
 func GetCommentReactionState(commentID, userID int) (*models.ReactionResponse, error) {
-
 	state := &models.ReactionResponse{}
 
 	err := database.DB.QueryRow(`
@@ -136,7 +149,6 @@ func GetCommentReactionState(commentID, userID int) (*models.ReactionResponse, e
 		WHERE comment_id = ?
 		AND reaction = 1
 	`, commentID).Scan(&state.Likes)
-
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +159,6 @@ func GetCommentReactionState(commentID, userID int) (*models.ReactionResponse, e
 		WHERE comment_id = ?
 		AND reaction = -1
 	`, commentID).Scan(&state.Dislikes)
-
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +178,6 @@ func ToggleCommentReaction(
 	commentID int,
 	reaction int,
 ) (*models.ReactionResponse, error) {
-
 	currentReaction, err := GetCommentReaction(userID, commentID)
 	if err != nil {
 		return nil, err
@@ -187,7 +197,6 @@ func ToggleCommentReaction(
 			)
 			VALUES (?, ?, ?)
 		`, commentID, userID, reaction)
-
 		if err != nil {
 			return nil, err
 		}
@@ -200,7 +209,6 @@ func ToggleCommentReaction(
 			WHERE comment_id = ?
 			AND user_id = ?
 		`, commentID, userID)
-
 		if err != nil {
 			return nil, err
 		}
@@ -214,7 +222,6 @@ func ToggleCommentReaction(
 			WHERE comment_id = ?
 			AND user_id = ?
 		`, reaction, commentID, userID)
-
 		if err != nil {
 			return nil, err
 		}
@@ -224,7 +231,6 @@ func ToggleCommentReaction(
 }
 
 func CommentExists(commentID int) (bool, error) {
-
 	var exists bool
 
 	err := database.DB.QueryRow(`
@@ -234,11 +240,9 @@ func CommentExists(commentID int) (bool, error) {
 			WHERE id = ?
 		)
 	`, commentID).Scan(&exists)
-
 	if err != nil {
 		return false, err
 	}
 
 	return exists, nil
 }
-

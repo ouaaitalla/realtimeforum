@@ -51,7 +51,7 @@ export function initCommentForm(postId) {
                 postId,
                 content
             );
-
+            
             const commentsList =
                 document.getElementById("comments-list");
 

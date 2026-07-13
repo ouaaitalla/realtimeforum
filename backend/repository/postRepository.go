@@ -116,9 +116,9 @@ func AreCategoriesValid(categoryIDs []int) (bool, error) {
 	return count == len(categoryIDs), nil
 }
 
-func GetPosts() ([]models.PostResponse, error) {
-	rows, err := database.DB.Query(`
-		SELECT
+func GetPosts(userID int, category string, mine bool, liked bool, sort string) ([]models.PostResponse, error) {
+	query := `
+		SELECT DISTINCT
 			p.id,
 			p.title,
 			p.content,
@@ -126,9 +126,69 @@ func GetPosts() ([]models.PostResponse, error) {
 			p.created_at
 		FROM posts p
 		INNER JOIN users u
-			ON p.user_id = u.id
-		ORDER BY p.created_at DESC
-	`)
+			ON u.id = p.user_id
+	`
+
+	var where []string
+	var args []any
+
+	if category != "" {
+
+		query += `
+			INNER JOIN post_categories pc
+				ON pc.post_id = p.id
+			INNER JOIN categories c
+				ON c.id = pc.category_id
+		`
+
+		where = append(where, "c.name = ?")
+		args = append(args, category)
+	}
+
+	if liked {
+
+		query += `
+			INNER JOIN post_reactions pr
+				ON pr.post_id = p.id
+		`
+
+		where = append(where, "pr.user_id = ?")
+		where = append(where, "pr.reaction = 1")
+
+		args = append(args, userID)
+	}
+
+	if mine {
+
+		where = append(where, "p.user_id = ?")
+		args = append(args, userID)
+	}
+
+	if len(where) > 0 {
+		query += "\nWHERE " + strings.Join(where, " AND ")
+	}
+
+	switch sort {
+
+	case "mostliked":
+
+		query += `
+			ORDER BY (
+				SELECT COUNT(*)
+				FROM post_reactions
+				WHERE post_id = p.id
+				AND reaction = 1
+			) DESC
+		`
+
+	default:
+
+		query += `
+			ORDER BY p.created_at DESC
+		`
+	}
+
+	rows, err := database.DB.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,18 +210,42 @@ func GetPosts() ([]models.PostResponse, error) {
 		if err != nil {
 			return nil, err
 		}
-		categories, err := GetCategoriesByPostID(post.ID)
+
+		post.Categories, err = GetCategoriesByPostID(post.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		post.Categories = categories
+		reactionState, err := GetPostReactionState(
+			post.ID,
+			userID,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		post.Likes = reactionState.Likes
+		post.Dislikes = reactionState.Dislikes
+		post.UserReaction = reactionState.UserReaction
+
+		err = database.DB.QueryRow(`
+			SELECT COUNT(*)
+			FROM comments
+			WHERE post_id = ?
+		`, post.ID).Scan(&post.Comments)
+		if err != nil {
+			return nil, err
+		}
 
 		posts = append(posts, post)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+
+	if posts == nil {
+		posts = []models.PostResponse{}
 	}
 
 	return posts, nil
@@ -197,7 +281,7 @@ func GetCategoriesByPostID(postID int) ([]string, error) {
 	return categories, rows.Err()
 }
 
-func GetPostByID(id int) (*models.PostDetailsResponse, error) {
+func GetPostByID(id int, userID int) (*models.PostDetailsResponse, error) {
 	var post models.PostDetailsResponse
 
 	err := database.DB.QueryRow(`
@@ -219,6 +303,7 @@ func GetPostByID(id int) (*models.PostDetailsResponse, error) {
 		&post.CreatedAt,
 	)
 	if err != nil {
+
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
@@ -233,12 +318,22 @@ func GetPostByID(id int) (*models.PostDetailsResponse, error) {
 
 	post.Categories = categories
 
+	reactionState, err := GetPostReactionState(
+		post.ID,
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	post.Likes = reactionState.Likes
+	post.Dislikes = reactionState.Dislikes
+	post.UserReaction = reactionState.UserReaction
+
 	return &post, nil
 }
 
-
 func PostExists(postID int) (bool, error) {
-
 	var id int
 
 	err := database.DB.QueryRow(`
@@ -281,10 +376,7 @@ func GetPostReaction(userID, postID int) (int, error) {
 	return reaction, nil
 }
 
-
-
 func GetPostReactionState(postID, userID int) (*models.ReactionResponse, error) {
-
 	state := &models.ReactionResponse{}
 
 	err := database.DB.QueryRow(`
@@ -293,7 +385,6 @@ func GetPostReactionState(postID, userID int) (*models.ReactionResponse, error) 
 		WHERE post_id = ?
 		AND reaction = 1
 	`, postID).Scan(&state.Likes)
-
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +395,6 @@ func GetPostReactionState(postID, userID int) (*models.ReactionResponse, error) 
 		WHERE post_id = ?
 		AND reaction = -1
 	`, postID).Scan(&state.Dislikes)
-
 	if err != nil {
 		return nil, err
 	}
@@ -319,12 +409,7 @@ func GetPostReactionState(postID, userID int) (*models.ReactionResponse, error) 
 	return state, nil
 }
 
-func TogglePostReaction(
-	userID int,
-	postID int,
-	reaction int,
-) (*models.ReactionResponse, error) {
-
+func TogglePostReaction(userID int, postID int, reaction int) (*models.ReactionResponse, error) {
 	currentReaction, err := GetPostReaction(userID, postID)
 	if err != nil {
 		return nil, err
@@ -344,7 +429,6 @@ func TogglePostReaction(
 			)
 			VALUES (?, ?, ?)
 		`, postID, userID, reaction)
-
 		if err != nil {
 			return nil, err
 		}
@@ -357,7 +441,6 @@ func TogglePostReaction(
 			WHERE post_id = ?
 			AND user_id = ?
 		`, postID, userID)
-
 		if err != nil {
 			return nil, err
 		}
@@ -371,7 +454,6 @@ func TogglePostReaction(
 			WHERE post_id = ?
 			AND user_id = ?
 		`, reaction, postID, userID)
-
 		if err != nil {
 			return nil, err
 		}
@@ -379,4 +461,3 @@ func TogglePostReaction(
 
 	return GetPostReactionState(postID, userID)
 }
-

@@ -167,17 +167,19 @@ func TogglePostReactionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, err := repository.TogglePostReaction(
+	reactionState, err := repository.TogglePostReaction(
 		user.ID,
 		postID,
 		req.Reaction,
 	)
 	if err != nil {
+
 		helpers.ErrorResponse(
 			w,
 			http.StatusInternalServerError,
-			"Failed to toggle reaction",
+			"Failed to update reaction",
 		)
+
 		return
 	}
 
@@ -185,6 +187,6 @@ func TogglePostReactionHandler(w http.ResponseWriter, r *http.Request) {
 		w,
 		http.StatusOK,
 		"Reaction updated successfully",
-		state,
+		reactionState,
 	)
 }

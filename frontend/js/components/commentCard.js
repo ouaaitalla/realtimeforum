@@ -20,17 +20,23 @@ export function commentCard(comment) {
                 ${comment.content}
             </p>
 
-            <div class="comment-footer">
+        <div class="comment-footer">
 
-                <button class="comment-like-btn">
-                    👍 0
-                </button>
+            <button
+                class="comment-like-btn ${comment.user_reaction === 1 ? "active" : ""}"
+                data-comment-id="${comment.id}"
+            >
+                👍 ${comment.likes}
+            </button>
 
-                <button class="comment-dislike-btn">
-                    👎 0
-                </button>
+            <button
+                class="comment-dislike-btn ${comment.user_reaction === -1 ? "active" : ""}"
+                data-comment-id="${comment.id}"
+            >
+                👎 ${comment.dislikes}
+            </button>
 
-            </div>
+        </div>
 
         </article>
     `;

@@ -151,3 +151,108 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		comment,
 	)
 }
+
+func ToggleCommentReactionHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		helpers.ErrorResponse(
+			w,
+			http.StatusMethodNotAllowed,
+			"Method not allowed",
+		)
+		return
+	}
+
+	user, ok := middleware.GetUser(r)
+	if !ok {
+		helpers.ErrorResponse(
+			w,
+			http.StatusUnauthorized,
+			"Unauthorized",
+		)
+		return
+	}
+
+	path := strings.TrimSuffix(r.URL.Path, "/")
+	parts := strings.Split(path, "/")
+
+	// /comments/{id}/reaction
+	if len(parts) != 4 {
+		helpers.ErrorResponse(
+			w,
+			http.StatusBadRequest,
+			"Invalid route",
+		)
+		return
+	}
+
+	commentID, err := strconv.Atoi(parts[2])
+	if err != nil {
+		helpers.ErrorResponse(
+			w,
+			http.StatusBadRequest,
+			"Invalid comment ID",
+		)
+		return
+	}
+
+	exists, err := repository.CommentExists(commentID)
+	if err != nil {
+		helpers.ErrorResponse(
+			w,
+			http.StatusInternalServerError,
+			"Database error",
+		)
+		return
+	}
+
+	if !exists {
+		helpers.ErrorResponse(
+			w,
+			http.StatusNotFound,
+			"Comment not found",
+		)
+		return
+	}
+
+	var req models.ReactionRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		helpers.ErrorResponse(
+			w,
+			http.StatusBadRequest,
+			"Invalid request body",
+		)
+		return
+	}
+
+	if req.Reaction != 1 && req.Reaction != -1 {
+		helpers.ErrorResponse(
+			w,
+			http.StatusBadRequest,
+			"Reaction must be 1 or -1",
+		)
+		return
+	}
+
+	state, err := repository.ToggleCommentReaction(
+		user.ID,
+		commentID,
+		req.Reaction,
+	)
+	if err != nil {
+		helpers.ErrorResponse(
+			w,
+			http.StatusInternalServerError,
+			"Failed to toggle reaction",
+		)
+		return
+	}
+
+	helpers.SuccessResponse(
+		w,
+		http.StatusOK,
+		"Reaction updated successfully",
+		state,
+	)
+}
+

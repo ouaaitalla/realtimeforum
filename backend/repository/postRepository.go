@@ -319,3 +319,64 @@ func GetPostReactionState(postID, userID int) (*models.ReactionResponse, error) 
 	return state, nil
 }
 
+func TogglePostReaction(
+	userID int,
+	postID int,
+	reaction int,
+) (*models.ReactionResponse, error) {
+
+	currentReaction, err := GetPostReaction(userID, postID)
+	if err != nil {
+		return nil, err
+	}
+
+	switch {
+
+	// No reaction -> INSERT
+	case currentReaction == 0:
+
+		_, err = database.DB.Exec(`
+			INSERT INTO post_reactions
+			(
+				post_id,
+				user_id,
+				reaction
+			)
+			VALUES (?, ?, ?)
+		`, postID, userID, reaction)
+
+		if err != nil {
+			return nil, err
+		}
+
+	// Same reaction -> DELETE
+	case currentReaction == reaction:
+
+		_, err = database.DB.Exec(`
+			DELETE FROM post_reactions
+			WHERE post_id = ?
+			AND user_id = ?
+		`, postID, userID)
+
+		if err != nil {
+			return nil, err
+		}
+
+	// Different reaction -> UPDATE
+	default:
+
+		_, err = database.DB.Exec(`
+			UPDATE post_reactions
+			SET reaction = ?
+			WHERE post_id = ?
+			AND user_id = ?
+		`, reaction, postID, userID)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return GetPostReactionState(postID, userID)
+}
+

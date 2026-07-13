@@ -162,3 +162,83 @@ func GetCommentReactionState(commentID, userID int) (*models.ReactionResponse, e
 	return state, nil
 }
 
+func ToggleCommentReaction(
+	userID int,
+	commentID int,
+	reaction int,
+) (*models.ReactionResponse, error) {
+
+	currentReaction, err := GetCommentReaction(userID, commentID)
+	if err != nil {
+		return nil, err
+	}
+
+	switch {
+
+	// No reaction -> INSERT
+	case currentReaction == 0:
+
+		_, err = database.DB.Exec(`
+			INSERT INTO comment_reactions
+			(
+				comment_id,
+				user_id,
+				reaction
+			)
+			VALUES (?, ?, ?)
+		`, commentID, userID, reaction)
+
+		if err != nil {
+			return nil, err
+		}
+
+	// Same reaction -> DELETE
+	case currentReaction == reaction:
+
+		_, err = database.DB.Exec(`
+			DELETE FROM comment_reactions
+			WHERE comment_id = ?
+			AND user_id = ?
+		`, commentID, userID)
+
+		if err != nil {
+			return nil, err
+		}
+
+	// Different reaction -> UPDATE
+	default:
+
+		_, err = database.DB.Exec(`
+			UPDATE comment_reactions
+			SET reaction = ?
+			WHERE comment_id = ?
+			AND user_id = ?
+		`, reaction, commentID, userID)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return GetCommentReactionState(commentID, userID)
+}
+
+func CommentExists(commentID int) (bool, error) {
+
+	var exists bool
+
+	err := database.DB.QueryRow(`
+		SELECT EXISTS(
+			SELECT 1
+			FROM comments
+			WHERE id = ?
+		)
+	`, commentID).Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+

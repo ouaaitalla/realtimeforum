@@ -260,3 +260,62 @@ func PostExists(postID int) (bool, error) {
 	return true, nil
 }
 
+func GetPostReaction(userID, postID int) (int, error) {
+	var reaction int
+
+	err := database.DB.QueryRow(`
+		SELECT reaction
+		FROM post_reactions
+		WHERE post_id = ?
+		AND user_id = ?
+	`, postID, userID).Scan(&reaction)
+
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+
+	if err != nil {
+		return 0, err
+	}
+
+	return reaction, nil
+}
+
+
+
+func GetPostReactionState(postID, userID int) (*models.ReactionResponse, error) {
+
+	state := &models.ReactionResponse{}
+
+	err := database.DB.QueryRow(`
+		SELECT COUNT(*)
+		FROM post_reactions
+		WHERE post_id = ?
+		AND reaction = 1
+	`, postID).Scan(&state.Likes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = database.DB.QueryRow(`
+		SELECT COUNT(*)
+		FROM post_reactions
+		WHERE post_id = ?
+		AND reaction = -1
+	`, postID).Scan(&state.Dislikes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userReaction, err := GetPostReaction(userID, postID)
+	if err != nil {
+		return nil, err
+	}
+
+	state.UserReaction = userReaction
+
+	return state, nil
+}
+

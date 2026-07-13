@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+
 	"real-time-forum/backend/models"
 	"real-time-forum/database"
 )
@@ -53,7 +55,6 @@ func CreateComment(userID int, postID int, req models.CreateCommentRequest) (*mo
 	}
 
 	return &comment, nil
-
 }
 
 func GetCommentsByPostID(postID int) ([]models.CommentResponse, error) {
@@ -102,3 +103,62 @@ func GetCommentsByPostID(postID int) ([]models.CommentResponse, error) {
 
 	return comments, nil
 }
+
+func GetCommentReaction(userID, commentID int) (int, error) {
+	var reaction int
+
+	err := database.DB.QueryRow(`
+		SELECT reaction
+		FROM comment_reactions
+		WHERE comment_id = ?
+		AND user_id = ?
+	`, commentID, userID).Scan(&reaction)
+
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+
+	if err != nil {
+		return 0, err
+	}
+
+	return reaction, nil
+}
+
+
+func GetCommentReactionState(commentID, userID int) (*models.ReactionResponse, error) {
+
+	state := &models.ReactionResponse{}
+
+	err := database.DB.QueryRow(`
+		SELECT COUNT(*)
+		FROM comment_reactions
+		WHERE comment_id = ?
+		AND reaction = 1
+	`, commentID).Scan(&state.Likes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = database.DB.QueryRow(`
+		SELECT COUNT(*)
+		FROM comment_reactions
+		WHERE comment_id = ?
+		AND reaction = -1
+	`, commentID).Scan(&state.Dislikes)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userReaction, err := GetCommentReaction(userID, commentID)
+	if err != nil {
+		return nil, err
+	}
+
+	state.UserReaction = userReaction
+
+	return state, nil
+}
+

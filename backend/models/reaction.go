@@ -17,3 +17,9 @@ type PostReaction struct {
 	Reaction int `json:"reaction"`
 }
 
+type ReactionResponse struct {
+    Likes        int `json:"likes"`
+    Dislikes     int `json:"dislikes"`
+    UserReaction int `json:"user_reaction"`
+}
+

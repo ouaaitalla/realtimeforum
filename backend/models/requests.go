@@ -30,3 +30,7 @@ type SendMessageRequest struct {
 	ReceiverID int    `json:"receiver_id"`
 	Content    string `json:"content"`
 }
+
+type ReactionRequest struct {
+    Reaction int `json:"reaction"`
+}

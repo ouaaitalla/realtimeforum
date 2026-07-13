@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"real-time-forum/backend/handlers/authHandlers"
+	commenthandlers "real-time-forum/backend/handlers/comment-Handlers"
 	posthandlers "real-time-forum/backend/handlers/post-Handlers"
 	"real-time-forum/backend/middleware"
 )
@@ -13,11 +14,8 @@ func SetupRoutes() http.Handler {
 
 	// Auth routes
 	mux.HandleFunc("/register", authHandlers.RegisterHandler)
-
 	mux.HandleFunc("/login", authHandlers.LoginHandler)
-
 	mux.HandleFunc("/logout", authHandlers.LogoutHandler)
-
 	mux.HandleFunc("/me", authHandlers.MeHandler)
 
 	// Posts routes
@@ -27,6 +25,13 @@ func SetupRoutes() http.Handler {
 
 	mux.Handle("/posts", postsHandler)
 	mux.Handle("/posts/", postsHandler)
+
+	// Comments routes
+	commentsHandler := middleware.AuthMiddleware(
+		http.HandlerFunc(commenthandlers.CommentsHandler),
+	)
+
+	mux.Handle("/comments/", commentsHandler)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("API Server Running"))

@@ -23,5 +23,4 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":8080", handler))
 	fmt.Println("Server running on :8080")
-	
 }

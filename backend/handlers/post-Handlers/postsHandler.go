@@ -28,6 +28,14 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// POST /posts/:id/reaction
+		if strings.HasSuffix(path, "/reaction") {
+
+			TogglePostReactionHandler(w, r)
+
+			return
+		}
+
 		// POST /posts
 		if path == "/posts" {
 

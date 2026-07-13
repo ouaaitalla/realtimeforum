@@ -68,7 +68,7 @@ func GetCommentsByPostID(postID int) ([]models.CommentResponse, error) {
 		INNER JOIN users u
 			ON u.id = c.user_id
 		WHERE c.post_id = ?
-		ORDER BY c.created_at ASC
+		ORDER BY c.created_at DESC
 	`, postID)
 	if err != nil {
 		return nil, err

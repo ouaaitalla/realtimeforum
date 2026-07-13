@@ -63,7 +63,7 @@ export function initCommentForm(postId) {
             }
 
             commentsList.insertAdjacentHTML(
-                "beforeend",
+                "afterbegin",
                 commentCard(comment)
             );
 
@@ -86,3 +86,4 @@ export function initCommentForm(postId) {
     });
 
 }
+

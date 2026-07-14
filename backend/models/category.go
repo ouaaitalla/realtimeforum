@@ -9,3 +9,8 @@ type PostCategory struct {
 	PostID     int `json:"post_id"`
 	CategoryID int `json:"category_id"`
 }
+
+type CategoryResponse struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}

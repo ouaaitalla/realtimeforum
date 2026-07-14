@@ -7,6 +7,7 @@ import { postCard } from "../components/postCard.js";
 import { showNotification } from "../components/notification.js";
 import { initPostCards } from "../components/postCard.js";
 import { initPostReactions } from "../components/reactions.js";
+import { initFilterModal } from "../components/filterModal.js";
 
 
 export async function homePage() {
@@ -16,12 +17,15 @@ export async function homePage() {
     );
 
     initNavbar();
-
+    
+    initFilterModal();
+    
     await loadPosts();
+    
 
 }
 
-export async function loadPosts() {
+export async function loadPosts(filters = {}) {
 
     const container = document.getElementById("posts-container");
 
@@ -33,7 +37,7 @@ export async function loadPosts() {
 
     try {
 
-        const posts = await getPosts();
+        const posts = await getPosts(filters);
 
         if (posts.length === 0) {
             container.innerHTML = `

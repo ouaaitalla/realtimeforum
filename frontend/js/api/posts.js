@@ -8,11 +8,38 @@ export function createPostRequest(post) {
     });
 }
 
-export function getPostsRequest() {
-    return apiFetch("/posts", {
+
+export function getPostsRequest(filters = {}) {
+
+    const params = new URLSearchParams();
+
+    if (filters.category) {
+        params.append("category", filters.category);
+    }
+
+    if (filters.mine) {
+        params.append("mine", "true");
+    }
+
+    if (filters.liked) {
+        params.append("liked", "true");
+    }
+
+    if (filters.sort) {
+        params.append("sort", filters.sort);
+    }
+
+    let url = "/posts";
+
+    if (params.toString()) {
+        url += `?${params.toString()}`;
+    }
+
+    return apiFetch(url, {
         method: "GET",
     });
 }
+
 
 export function getPostRequest(id) {
     return apiFetch(`/posts/${id}`, {

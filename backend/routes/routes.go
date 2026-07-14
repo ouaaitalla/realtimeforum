@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"real-time-forum/backend/handlers/authHandlers"
+	categoryhandlers "real-time-forum/backend/handlers/category-Handlers"
 	commenthandlers "real-time-forum/backend/handlers/comment-Handlers"
 	posthandlers "real-time-forum/backend/handlers/post-Handlers"
 	"real-time-forum/backend/middleware"
@@ -30,6 +31,12 @@ func SetupRoutes() http.Handler {
 	commentsHandler := middleware.AuthMiddleware(
 		http.HandlerFunc(commenthandlers.CommentsHandler),
 	)
+
+	categoriesHandler := middleware.AuthMiddleware(
+		http.HandlerFunc(categoryhandlers.GetCategoriesHandler),
+	)
+
+	mux.Handle("/categories", categoriesHandler)
 
 	mux.Handle("/comments/", commentsHandler)
 

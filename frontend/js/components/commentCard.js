@@ -1,3 +1,5 @@
+import { escapeHTML } from "../utils/escapeHTML.js";
+
 export function commentCard(comment) {
     return `
         <article class="comment-card">
@@ -16,9 +18,7 @@ export function commentCard(comment) {
 
             </div>
 
-            <p class="comment-content">
-                ${comment.content}
-            </p>
+            <p class="comment-content">${escapeHTML(comment.content)}</p>
 
         <div class="comment-footer">
 

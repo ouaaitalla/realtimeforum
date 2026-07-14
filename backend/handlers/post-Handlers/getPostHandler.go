@@ -11,7 +11,6 @@ import (
 )
 
 func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
-
 	user, ok := middleware.GetUser(r)
 
 	if !ok {
@@ -23,21 +22,25 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	category := r.URL.Query().Get("category")
+	categoriesParam := r.URL.Query().Get("categories")
+
+	var categories []string
+
+	if categoriesParam != "" {
+		categories = strings.Split(categoriesParam, ",")
+	}
 	sort := r.URL.Query().Get("sort")
 
 	mine := r.URL.Query().Get("mine") == "true"
 	liked := r.URL.Query().Get("liked") == "true"
 
-
 	posts, err := repository.GetPosts(
 		user.ID,
-		category,
+		categories,
 		mine,
 		liked,
 		sort,
 	)
-
 	if err != nil {
 
 		helpers.ErrorResponse(
@@ -49,7 +52,6 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	helpers.SuccessResponse(
 		w,
 		http.StatusOK,
@@ -57,7 +59,6 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 		posts,
 	)
 }
-
 
 func GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {

@@ -116,7 +116,7 @@ func AreCategoriesValid(categoryIDs []int) (bool, error) {
 	return count == len(categoryIDs), nil
 }
 
-func GetPosts(userID int, category string, mine bool, liked bool, sort string) ([]models.PostResponse, error) {
+func GetPosts(userID int, categories []string, mine bool, liked bool, sort string) ([]models.PostResponse, error) {
 	query := `
 		SELECT DISTINCT
 			p.id,
@@ -132,17 +132,29 @@ func GetPosts(userID int, category string, mine bool, liked bool, sort string) (
 	var where []string
 	var args []any
 
-	if category != "" {
+	if len(categories) > 0 {
 
 		query += `
-			INNER JOIN post_categories pc
-				ON pc.post_id = p.id
-			INNER JOIN categories c
-				ON c.id = pc.category_id
-		`
+		INNER JOIN post_categories pc
+			ON pc.post_id = p.id
+		INNER JOIN categories c
+			ON c.id = pc.category_id
+	`
 
-		where = append(where, "c.name = ?")
-		args = append(args, category)
+		placeholders := make([]string, len(categories))
+
+		for i, category := range categories {
+
+			placeholders[i] = "?"
+
+			args = append(args, category)
+
+		}
+
+		where = append(
+			where,
+			"c.name IN ("+strings.Join(placeholders, ",")+")",
+		)
 	}
 
 	if liked {

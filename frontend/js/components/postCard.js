@@ -1,6 +1,6 @@
 
 import { navigate } from "../router.js";
-
+import { escapeHTML } from "../utils/escapeHTML.js";
 
 export function postCard(post) {
     return `
@@ -33,13 +33,9 @@ export function postCard(post) {
 
             </div>
 
-            <h2 class="post-title">
-                ${post.title}
-            </h2>
+            <h2 class="post-title">${escapeHTML(post.title)}</h2>
 
-            <p class="post-content">
-                ${post.content}
-            </p>
+            <p class="post-content">${escapeHTML(post.content)}</p>
 
           <div class="post-footer">
 

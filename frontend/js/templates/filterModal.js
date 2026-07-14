@@ -113,7 +113,7 @@ export function filterModal() {
     `;
 }
 
-async function loadCategories() {
+export async function loadCategories() {
 
     const container = document.getElementById("filter-categories");
 

@@ -13,8 +13,11 @@ export function getPostsRequest(filters = {}) {
 
     const params = new URLSearchParams();
 
-    if (filters.category) {
-        params.append("category", filters.category);
+    if (filters.categories?.length) {
+        params.append(
+            "categories",
+            filters.categories.join(",")
+        );
     }
 
     if (filters.mine) {

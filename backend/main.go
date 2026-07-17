@@ -7,6 +7,7 @@ import (
 
 	"real-time-forum/backend/middleware"
 	"real-time-forum/backend/routes"
+	"real-time-forum/backend/websocket"
 	"real-time-forum/database"
 )
 
@@ -20,6 +21,8 @@ func main() {
 	router := routes.SetupRoutes()
 
 	handler := middleware.CORSMiddleware(router)
+
+	go websocket.HubInstance.Run()
 
 	log.Fatal(http.ListenAndServe(":8080", handler))
 	fmt.Println("Server running on :8080")

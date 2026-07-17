@@ -34,3 +34,10 @@ type SendMessageRequest struct {
 type ReactionRequest struct {
     Reaction int `json:"reaction"`
 }
+
+
+type WebSocketMessageRequest struct {
+	ReceiverID int    `json:"receiver_id"`
+	Content    string `json:"content"`
+}
+

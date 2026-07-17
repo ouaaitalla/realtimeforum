@@ -71,3 +71,32 @@ func DeleteSession(sessionID string) error {
 }
 
 
+func GetUserFromSession(sessionID string) (*models.User, error) {
+
+	session, err := GetSessionByID(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	if session == nil {
+		return nil, nil
+	}
+
+	if time.Now().After(session.ExpiresAt) {
+		_ = DeleteSession(session.ID)
+		return nil, nil
+	}
+
+	user, err := GetUserByID(session.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, nil
+	}
+
+	user.PasswordHash = ""
+
+	return user, nil
+}

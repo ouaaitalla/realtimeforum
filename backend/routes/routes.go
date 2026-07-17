@@ -8,6 +8,7 @@ import (
 	commenthandlers "real-time-forum/backend/handlers/comment-Handlers"
 	posthandlers "real-time-forum/backend/handlers/post-Handlers"
 	"real-time-forum/backend/middleware"
+	"real-time-forum/backend/websocket"
 )
 
 func SetupRoutes() http.Handler {
@@ -39,6 +40,8 @@ func SetupRoutes() http.Handler {
 	mux.Handle("/categories", categoriesHandler)
 
 	mux.Handle("/comments/", commentsHandler)
+
+	mux.HandleFunc("/ws", websocket.HandleWebSocket)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("API Server Running"))

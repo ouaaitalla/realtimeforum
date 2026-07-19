@@ -4,11 +4,14 @@ import { registerPage } from "./pages/register.js";
 import { postDetailsPage } from "./pages/postDetailsPage.js";
 import { checkAuth } from "./services/authService.js";
 import { errorPage } from "./pages/error.js";
+import { chatPage } from "./pages/chat.js";
+import { getMe } from "../services/authService.js";
 
 const routes = {
     "/": homePage,
     "/login": loginPage,
     "/register": registerPage,
+    "/chat": chatPage,
 };
 
 export async function router() {

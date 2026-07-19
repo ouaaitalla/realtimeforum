@@ -6,8 +6,8 @@ import (
 	"github.com/gorilla/websocket"
 
 	"real-time-forum/backend/helpers"
+	"real-time-forum/backend/middleware"
 	"real-time-forum/backend/models"
-	"real-time-forum/backend/repository"
 )
 
 var upgrader = websocket.Upgrader{
@@ -20,16 +20,10 @@ var upgrader = websocket.Upgrader{
 }
 
 func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
-	// Check session
-	cookie, err := r.Cookie("session_id")
-	if err != nil {
+	
+	user, ok := middleware.GetUser(r)
+	if !ok {
 		helpers.ErrorResponse(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
-
-	user, err := repository.GetUserFromSession(cookie.Value)
-	if err != nil {
-		helpers.ErrorResponse(w, http.StatusInternalServerError, "Database error")
 		return
 	}
 
@@ -47,7 +41,7 @@ func HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	client := &Client{
 		Hub:    HubInstance,
 		Conn:   conn,
-		Send:   make(chan models.Message, 32),
+		Send:   make(chan models.WebSocketEvent, 32),
 		UserID: user.ID,
 	}
 

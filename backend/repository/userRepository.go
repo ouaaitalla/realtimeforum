@@ -2,9 +2,10 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
-	"real-time-forum/database"
 	"real-time-forum/backend/models"
+	"real-time-forum/database"
 )
 
 func UserExists(email, nickname string) (bool, error) {
@@ -45,7 +46,6 @@ func CreateUser(user models.RegisterRequest, hashedPassword string) error {
 	return err
 }
 
-
 func GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 
@@ -75,7 +75,6 @@ func GetUserByEmail(email string) (*models.User, error) {
 		&user.Avatar,
 		&user.CreatedAt,
 	)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -85,7 +84,6 @@ func GetUserByEmail(email string) (*models.User, error) {
 
 	return &user, nil
 }
-
 
 func GetUserByID(id int) (*models.User, error) {
 	var user models.User
@@ -126,4 +124,91 @@ func GetUserByID(id int) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func GetChatUsers(currentUserID int) ([]models.ChatUser, error) {
+	rows, err := database.DB.Query(`
+		SELECT
+			u.id,
+			u.nickname,
+			u.avatar,
+
+			(
+				SELECT m.content
+				FROM messages m
+				WHERE
+					(m.sender_id = u.id AND m.receiver_id = ?)
+					OR
+					(m.sender_id = ? AND m.receiver_id = u.id)
+				ORDER BY m.created_at DESC
+				LIMIT 1
+			) AS last_message,
+
+			(
+				SELECT m.created_at
+				FROM messages m
+				WHERE
+					(m.sender_id = u.id AND m.receiver_id = ?)
+					OR
+					(m.sender_id = ? AND m.receiver_id = u.id)
+				ORDER BY m.created_at DESC
+				LIMIT 1
+			) AS last_message_time
+
+		FROM users u
+		WHERE u.id != ?
+		ORDER BY
+			last_message_time DESC,
+			u.nickname ASC
+	`,
+		currentUserID,
+		currentUserID,
+		currentUserID,
+		currentUserID,
+		currentUserID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []models.ChatUser
+
+	for rows.Next() {
+
+		var user models.ChatUser
+
+		var lastMessage *string
+
+		var lastMessageTime *time.Time
+
+		err := rows.Scan(
+			&user.ID,
+			&user.Nickname,
+			&user.Avatar,
+			&lastMessage,
+			&lastMessageTime,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if lastMessage != nil {
+			user.LastMessage = *lastMessage
+		}
+
+		user.LastMessageTime = lastMessageTime
+
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if users == nil {
+		users = []models.ChatUser{}
+	}
+
+	return users, nil
 }

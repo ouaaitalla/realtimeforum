@@ -5,6 +5,7 @@ import { openModal } from "./modal.js";
 import { initCreatePostForm } from "./postForm.js"
 
 
+
 export function navbar() {
     return `
         <nav class="navbar">
@@ -52,7 +53,7 @@ export function initNavbar() {
 
     if (messagesLink) {
         messagesLink.addEventListener("click", () => {
-            navigate("/messages");
+            navigate("/chat");
         });
     }
 

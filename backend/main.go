@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -25,5 +24,4 @@ func main() {
 	go websocket.HubInstance.Run()
 
 	log.Fatal(http.ListenAndServe(":8080", handler))
-	fmt.Println("Server running on :8080")
 }

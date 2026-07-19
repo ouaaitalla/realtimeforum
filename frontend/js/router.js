@@ -5,7 +5,8 @@ import { postDetailsPage } from "./pages/postDetailsPage.js";
 import { checkAuth } from "./services/authService.js";
 import { errorPage } from "./pages/error.js";
 import { chatPage } from "./pages/chat.js";
-import { getMe } from "../services/authService.js";
+import ws from "./websocket/ws.js";
+
 
 const routes = {
     "/": homePage,
@@ -26,8 +27,14 @@ export async function router() {
         return;
     }
 
+    if(isAuthenticated){
+        ws.connect()
+
+        //init ws evenst
+    }
     // User already logged in
     if (isAuthenticated && (path === "/login" || path === "/register")) {
+
         navigate("/");
         return;
     }

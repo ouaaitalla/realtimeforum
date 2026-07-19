@@ -4,6 +4,7 @@ let socket = null;
 
 const listeners = new Map();
 
+
 export function connectWebSocket() {
     if (socket && socket.readyState === WebSocket.OPEN) {
         return socket;

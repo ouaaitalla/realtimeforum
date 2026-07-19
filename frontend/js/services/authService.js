@@ -23,3 +23,8 @@ export async function checkAuth() {
         return false;
     }
 }
+
+export async function getMe() {
+    return (await meRequest()).data;
+}
+

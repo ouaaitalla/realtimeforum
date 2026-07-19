@@ -2,11 +2,11 @@ import { chatTemplate } from "../templates/chatTemplate.js";
 import { getUsers } from "../services/chatService.js";
 import { render } from "../utils/render.js";
 import { connectWebSocket, on } from "../websocket/socket.js";
-
 import { renderChatList, initChatList } from "../components/chatList.js";
-
-import { initChatWindow, openConversation, addMessage, showTyping, hideTyping } from "../components/chatWindow.js";
-
+import { initChatWindow, openConversation, addMessage, showTyping, hideTyping, setCurrentUser} from "../components/chatWindow.js";
+import { getMe } from "../services/authService.js";
+import { appLayout } from "../layouts/appLayout.js";
+import { initNavbar } from "../components/navbar.js";
 
 
 let users = [];
@@ -17,26 +17,21 @@ let selectedUser = null;
 
 
 
-export async function chatPage(user) {
+export async function chatPage() {
 
-    authUser = user;
+    authUser = await getMe();
 
+    setCurrentUser(authUser.id);
 
-    render(
-        chatTemplate()
-    );
+    render(appLayout(chatTemplate()));
 
+    initNavbar();
 
     connectWebSocket();
-   
 
-    initChatWindow(
-        user.id
-    );
-
+    initChatWindow();
 
     await loadUsers();
-
 
     setupSocketEvents();
 
@@ -110,9 +105,27 @@ function setupSocketEvents() {
     on(
         "message",
         (message)=>{
+            const otherUserId = message.sender_id === authUser.id? message.receiver_id : message.sender_id;
 
+            const user = users.find(u => u.id === otherUserId);
+
+            if (user) {
+                user.last_message = message.content;
+                user.last_message_time = message.created_at;
+
+                const container = document.querySelector("#chat-users-list");
+
+                renderChatList(
+                    container,
+                    users,
+                    selectedUser?.id
+                );
+
+                initChatList(selectUser);
+            }
 
             if (
+                selectedUser &&
                 (message.sender_id === selectedUser.id && message.receiver_id === authUser.id) ||
                 (message.sender_id === authUser.id && message.receiver_id === selectedUser.id)
             ){
@@ -148,43 +161,31 @@ function setupSocketEvents() {
 
 
 
-    on(
-        "online",
-        (data)=>{
+    on("online", (onlineUsers) => {
 
+        users.forEach(user => {
+            user.is_online = onlineUsers.includes(user.id);
+        });
 
-            const user =
-                users.find(
-                    u => u.id === data.user_id
-                );
+        const container = document.querySelector("#chat-users-list");
 
+        renderChatList(container, users);
 
-            if(user){
+        initChatList(selectUser);
 
-                user.is_online =
-                    data.online;
+    });
 
+    ws.on("read", (data) => {
 
-                const container =
-                    document.querySelector(
-                        "#chat-users-list"
-                    );
+        if (!selectedUser) return;
 
-
-                renderChatList(
-                    container,
-                    users
-                );
-
-
-                initChatList(
-                    selectUser
-                );
-
-            }
-
+        if (data.sender_id !== selectedUser.id) {
+            return;
         }
-    );
+
+        updateReadReceipts();
+
+    });
 
 
 }

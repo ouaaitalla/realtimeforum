@@ -1,7 +1,4 @@
-import {
-    togglePostReactionRequest,
-    toggleCommentReactionRequest,
-} from "../api/reactions.js";
+import { togglePostReactionRequest, toggleCommentReactionRequest } from "../api/reactions.js";
 
 export async function togglePostReaction(postId, reaction) {
 

@@ -50,7 +50,32 @@ export function chatList(users = [], selectedUserId = null) {
 }
 
 export function renderChatList(container, users, selectedUserId = null) {
-    container.innerHTML = chatList(users, selectedUserId);
+
+    const sortedUsers = [...users].sort((a, b) => {
+
+        // Online first
+        if (a.is_online !== b.is_online) {
+            return Number(b.is_online) - Number(a.is_online);
+        }
+
+        // Compare last message time
+        const aTime = a.last_message_time
+            ? new Date(a.last_message_time).getTime()
+            : 0;
+
+        const bTime = b.last_message_time
+            ? new Date(b.last_message_time).getTime()
+            : 0;
+
+        if (aTime !== bTime) {
+            return bTime - aTime;
+        }
+
+        // Alphabetical
+        return a.nickname.localeCompare(b.nickname);
+    });
+
+    container.innerHTML = chatList(sortedUsers, selectedUserId);
 }
 
 export function initChatList(onSelectUser) {

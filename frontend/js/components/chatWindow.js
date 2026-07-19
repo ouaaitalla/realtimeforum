@@ -1,14 +1,13 @@
 import { getConversation, sendMessage, markConversationAsRead, sendTyping } from "../services/chatService.js";
 import { messageBubble } from "./messageBubble.js";
+import {ws} from "../websocket/ws.js";
 
 
 let currentReceiverID = null;
 let currentUserID = null;
 
 
-export function initChatWindow(userID) {
-
-    currentUserID = userID;
+export function initChatWindow() {
 
     const backBtn = document.querySelector("#chat-back-btn");
 
@@ -95,6 +94,7 @@ export async function openConversation(user) {
 
     const messages = await getConversation(user.id);
 
+    ws.sendRead(user.id);
 
     renderMessages(messages);
 
@@ -213,5 +213,20 @@ function scrollToBottom() {
 
     container.scrollTop =
         container.scrollHeight;
+
+}
+
+export function setCurrentUser(userID) {
+    currentUserID = userID;
+}
+
+
+export function updateReadReceipts() {
+
+    const statuses = document.querySelectorAll(".message-status");
+
+    statuses.forEach(status => {
+        status.textContent = "✓✓";
+    });
 
 }

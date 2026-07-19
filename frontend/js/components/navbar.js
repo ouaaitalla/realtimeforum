@@ -3,6 +3,7 @@ import { navigate } from "../router.js";
 import { postForm } from "./postForm.js";
 import { openModal } from "./modal.js";
 import { initCreatePostForm } from "./postForm.js"
+import { disconnectWebSocket } from "../websocket/socket.js";
 
 
 
@@ -67,6 +68,7 @@ export function initNavbar() {
     if (logoutBtn) {
         logoutBtn.addEventListener("click", async () => {
             try {
+                disconnectWebSocket();
                 await logout();
                 navigate("/login");
             } catch (error) {

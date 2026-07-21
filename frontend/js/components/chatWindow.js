@@ -316,4 +316,8 @@ export function setCurrentUser(userID) {
     currentUserID = userID;
 }
 
+export function getCurrentReceiverID() {
+    return currentReceiverID;
+}
+
 

@@ -2,6 +2,8 @@
 import { navigate } from "../router.js";
 import { escapeHTML } from "../utils/escapeHTML.js";
 
+let postCardsInitialized = false;
+
 export function postCard(post) {
     return `
         <article
@@ -51,27 +53,32 @@ export function postCard(post) {
     `;
 }
 
+/**
+ * Sets up a single delegated click listener on the document for post card navigation.
+ * Only navigates to the post detail page when clicking a post card on the feed
+ * (i.e., inside #posts-container). Reaction button clicks are ignored.
+ */
 export function initPostCards() {
 
-    const cards = document.querySelectorAll(".post-card");
+    if (postCardsInitialized) return;
+    postCardsInitialized = true;
 
-    cards.forEach(card => {
+    document.addEventListener("click", (e) => {
 
-        card.addEventListener("click", (e) => {
+        // Only handle clicks on post cards inside the feed container
+        const container = document.getElementById("posts-container");
+        if (!container) return;
 
-            if (
-                e.target.closest(".post-like-btn") ||
-                e.target.closest(".post-dislike-btn")
-            ) {
-                return;
-            }
+        // Don't navigate if clicking reaction buttons
+        if (e.target.closest(".post-like-btn") || e.target.closest(".post-dislike-btn")) {
+            return;
+        }
 
+        const card = e.target.closest(".post-card");
+        if (card && container.contains(card)) {
             const postId = card.dataset.postId;
-
             navigate(`/posts/${postId}`);
-
-        });
-
+        }
     });
 
 }

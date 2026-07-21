@@ -58,9 +58,32 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Pagination: default limit=10, offset=0
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+
+	limit := 10
+	offset := 0
+
+	if limitStr != "" {
+		parsedLimit, err := strconv.Atoi(limitStr)
+		if err == nil && parsedLimit > 0 && parsedLimit <= 100 {
+			limit = parsedLimit
+		}
+	}
+
+	if offsetStr != "" {
+		parsedOffset, err := strconv.Atoi(offsetStr)
+		if err == nil && parsedOffset >= 0 {
+			offset = parsedOffset
+		}
+	}
+
 	comments, err := repository.GetCommentsByPostID(
 		postID,
 		user.ID,
+		limit,
+		offset,
 	)
 	if err != nil {
 

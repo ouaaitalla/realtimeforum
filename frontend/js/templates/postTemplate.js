@@ -2,7 +2,7 @@ import { postCard } from "../components/postCard.js";
 import { commentCard } from "../components/commentCard.js";
 import { commentForm } from "../components/commentForm.js";
 
-export function postDetailsTemplate(post, comments) {
+export function postDetailsTemplate(post, comments, hasMoreComments = false) {
 
     return `
 
@@ -31,6 +31,16 @@ export function postDetailsTemplate(post, comments) {
                     }
 
                 </div>
+
+                ${
+                    hasMoreComments
+                        ? `<div class="load-more-comments">
+                            <button id="load-more-comments-btn" class="load-more-btn">
+                                Load more comments
+                            </button>
+                        </div>`
+                        : ""
+                }
 
             </div>
 

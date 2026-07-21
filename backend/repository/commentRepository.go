@@ -57,7 +57,7 @@ func CreateComment(userID int, postID int, req models.CreateCommentRequest) (*mo
 	return &comment, nil
 }
 
-func GetCommentsByPostID(postID int, userID int) ([]models.CommentResponse, error) {
+func GetCommentsByPostID(postID int, userID int, limit int, offset int) ([]models.CommentResponse, error) {
 	rows, err := database.DB.Query(`
 		SELECT
 			c.id,
@@ -70,7 +70,9 @@ func GetCommentsByPostID(postID int, userID int) ([]models.CommentResponse, erro
 			ON u.id = c.user_id
 		WHERE c.post_id = ?
 		ORDER BY c.created_at DESC
-	`, postID)
+		LIMIT ?
+		OFFSET ?
+	`, postID, limit, offset)
 	if err != nil {
 		return nil, err
 	}

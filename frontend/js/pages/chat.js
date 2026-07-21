@@ -35,6 +35,21 @@ export async function chatPage() {
 
     setupSocketEvents();
 
+    // If navigated from a notification click, auto-open that conversation
+    const pendingUserId = window.__pendingChatUserId;
+    if (pendingUserId) {
+        window.__pendingChatUserId = null;
+        const user = users.find(u => u.id === pendingUserId);
+        if (user) {
+            // Small delay to let DOM settle, then open and show chat on mobile
+            setTimeout(() => {
+                selectedUser = user;
+                openConversation(user);
+                document.querySelector(".chat-page")?.classList.add("show-chat");
+            }, 100);
+        }
+    }
+
 }
 
 

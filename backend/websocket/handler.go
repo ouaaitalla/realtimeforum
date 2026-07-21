@@ -10,12 +10,32 @@ import (
 	"real-time-forum/backend/models"
 )
 
+// allowedWSOrigins lists the frontend origins permitted to establish
+// WebSocket connections. Must stay in sync with CORSMiddleware.
+var allowedWSOrigins = []string{
+	"http://localhost:3000",
+}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 
 	CheckOrigin: func(r *http.Request) bool {
-		return true
+		origin := r.Header.Get("Origin")
+
+		// No Origin header → allow (non-browser clients like curl, mobile apps)
+		if origin == "" {
+			return true
+		}
+
+		// Allow only known frontend origin(s)
+		for _, allowed := range allowedWSOrigins {
+			if origin == allowed {
+				return true
+			}
+		}
+
+		return false
 	},
 }
 

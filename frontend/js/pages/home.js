@@ -17,6 +17,7 @@ let currentCursorID = null;
 let hasMorePosts = true;
 let isLoadingPosts = false;
 let currentFilters = {};
+let scrollHandler = null;
 
 
 export async function homePage() {
@@ -34,6 +35,10 @@ export async function homePage() {
     initNavbar();
 
     initFilterModal();
+
+    // Set up event delegation (idempotent — only runs once across the app)
+    initPostCards();
+    initPostReactions();
 
     // Load initial batch
     await loadPosts();
@@ -111,9 +116,6 @@ export async function loadPosts(filters = {}, append = false) {
             });
         }
 
-        initPostCards();
-        initPostReactions();
-
         currentCursor = nextCursor || null;
         currentCursorID = nextCursorID || null;
         hasMorePosts = hasMore;
@@ -133,7 +135,13 @@ export async function loadPosts(filters = {}, append = false) {
 
 function setupInfiniteScroll() {
 
-    const handleScroll = debounce(() => {
+    // Remove any existing scroll listener to prevent memory leaks
+    // when navigating back to the home page
+    if (scrollHandler) {
+        window.removeEventListener("scroll", scrollHandler);
+    }
+
+    scrollHandler = debounce(() => {
 
         if (isLoadingPosts || !hasMorePosts) return;
 
@@ -151,7 +159,7 @@ function setupInfiniteScroll() {
 
     }, 200);
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", scrollHandler);
 
 }
 

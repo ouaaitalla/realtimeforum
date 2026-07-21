@@ -3,39 +3,35 @@ import {
     toggleCommentReaction,
 } from "../services/reactionService.js";
 
+let postReactionsInitialized = false;
+let commentReactionsInitialized = false;
+
+/**
+ * Sets up a single delegated click listener on the document for post like/dislike buttons.
+ * Works on both the feed page (post cards in #posts-container) and the details page.
+ */
 export function initPostReactions() {
 
-    document.querySelectorAll(".post-like-btn").forEach(button => {
+    if (postReactionsInitialized) return;
+    postReactionsInitialized = true;
 
-        button.addEventListener("click", async (e) => {
+    document.addEventListener("click", async (e) => {
 
+        const likeBtn = e.target.closest(".post-like-btn");
+        if (likeBtn) {
             e.stopPropagation();
+            const postId = likeBtn.dataset.postId;
+            await updatePostReaction(postId, 1);
+            return;
+        }
 
-            const postId = button.dataset.postId;
-
-            await updatePostReaction(
-                postId,
-                1,
-            );
-
-        });
-
-    });
-
-    document.querySelectorAll(".post-dislike-btn").forEach(button => {
-
-        button.addEventListener("click", async (e) => {
-
+        const dislikeBtn = e.target.closest(".post-dislike-btn");
+        if (dislikeBtn) {
             e.stopPropagation();
-
-            const postId = button.dataset.postId;
-
-            await updatePostReaction(
-                postId,
-                -1,
-            );
-
-        });
+            const postId = dislikeBtn.dataset.postId;
+            await updatePostReaction(postId, -1);
+            return;
+        }
 
     });
 
@@ -77,39 +73,31 @@ async function updatePostReaction(postId, reaction) {
 
 }
 
+/**
+ * Sets up a single delegated click listener on the document for comment like/dislike buttons.
+ */
 export function initCommentReactions() {
 
-    document.querySelectorAll(".comment-like-btn").forEach(button => {
+    if (commentReactionsInitialized) return;
+    commentReactionsInitialized = true;
 
-        button.addEventListener("click", async (e) => {
+    document.addEventListener("click", async (e) => {
 
+        const likeBtn = e.target.closest(".comment-like-btn");
+        if (likeBtn) {
             e.stopPropagation();
+            const commentId = likeBtn.dataset.commentId;
+            await updateCommentReaction(commentId, 1);
+            return;
+        }
 
-            const commentId = button.dataset.commentId;
-
-            await updateCommentReaction(
-                commentId,
-                1,
-            );
-
-        });
-
-    });
-
-    document.querySelectorAll(".comment-dislike-btn").forEach(button => {
-
-        button.addEventListener("click", async (e) => {
-
+        const dislikeBtn = e.target.closest(".comment-dislike-btn");
+        if (dislikeBtn) {
             e.stopPropagation();
-
-            const commentId = button.dataset.commentId;
-
-            await updateCommentReaction(
-                commentId,
-                -1,
-            );
-
-        });
+            const commentId = dislikeBtn.dataset.commentId;
+            await updateCommentReaction(commentId, -1);
+            return;
+        }
 
     });
 

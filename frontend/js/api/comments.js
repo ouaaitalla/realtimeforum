@@ -1,7 +1,7 @@
 import { apiFetch } from "../utils/fetch.js";
 
-export function getCommentsRequest(postId) {
-    return apiFetch(`/posts/${postId}/comments`, {
+export function getCommentsRequest(postId, limit = 10, offset = 0) {
+    return apiFetch(`/posts/${postId}/comments?limit=${limit}&offset=${offset}`, {
         method: "GET",
     });
 }

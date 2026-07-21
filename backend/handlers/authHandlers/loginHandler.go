@@ -2,8 +2,11 @@ package authHandlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
+	"net"
 	"net/http"
+	"strconv"
 	"time"
 
 	"real-time-forum/backend/helpers"
@@ -17,7 +20,30 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Rate limiting by IP address
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		host = r.RemoteAddr
+	}
+
+	allowed, remaining, resetAfter := helpers.LoginRateLimiter.Allow(host)
+
+	// Set rate limit headers
+	w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(remaining))
+	w.Header().Set("X-RateLimit-Reset", strconv.Itoa(int(resetAfter.Seconds())))
+
+	if !allowed {
+		helpers.ErrorResponse(
+			w,
+			http.StatusTooManyRequests,
+			fmt.Sprintf("Too many login attempts. Try again in %d seconds.", int(resetAfter.Seconds())),
+		)
+		return
+	}
+
 	var req models.LoginRequest
+
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
@@ -25,19 +51,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Email == "" || req.Password == "" {
-		helpers.ErrorResponse(w, http.StatusBadRequest, "Email and password are required")
+		helpers.ErrorResponse(w, http.StatusBadRequest, "Email/Nickname and password are required")
 		return
 	}
 
-	user, err := repository.GetUserByEmail(req.Email)
+	user, err := repository.GetUserByIdentifier(req.Email)
 	if err != nil {
-		log.Println("GetUserByEmail error:", err)
+		log.Println("GetUserByIdentifier error:", err)
 		helpers.ErrorResponse(w, http.StatusInternalServerError, "Database error")
 		return
 	}
 
 	if user == nil {
-		helpers.ErrorResponse(w, http.StatusUnauthorized, "Invalid email or password")
+		helpers.ErrorResponse(w, http.StatusUnauthorized, "Invalid email/nickname or password")
 		return
 	}
 
@@ -46,6 +72,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		helpers.ErrorResponse(w, http.StatusUnauthorized, "Invalid email or password")
 		return
 	}
+
+	// Reset rate limit on successful login
+	helpers.LoginRateLimiter.Reset(host)
 
 	// Generate Session ID
 	sessionID, err := helpers.GenerateSessionID()

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"real-time-forum/backend/models"
 	"real-time-forum/database"
@@ -116,7 +117,7 @@ func AreCategoriesValid(categoryIDs []int) (bool, error) {
 	return count == len(categoryIDs), nil
 }
 
-func GetPosts(userID int, categories []string, mine bool, liked bool, sort string) ([]models.PostResponse, error) {
+func GetPosts(userID int, categories []string, mine bool, liked bool, sort string, cursor *time.Time, cursorID int, limit int) ([]models.PostResponse, *time.Time, int, error) {
 	query := `
 		SELECT DISTINCT
 			p.id,
@@ -131,6 +132,11 @@ func GetPosts(userID int, categories []string, mine bool, liked bool, sort strin
 
 	var where []string
 	var args []any
+
+	if cursor != nil {
+		where = append(where, "(p.created_at, p.id) < (?, ?)")
+		args = append(args, *cursor, cursorID)
+	}
 
 	if len(categories) > 0 {
 
@@ -200,9 +206,12 @@ func GetPosts(userID int, categories []string, mine bool, liked bool, sort strin
 		`
 	}
 
+	query += "\nLIMIT ?"
+	args = append(args, limit)
+
 	rows, err := database.DB.Query(query, args...)
 	if err != nil {
-		return nil, err
+		return nil, nil, 0, err
 	}
 	defer rows.Close()
 
@@ -220,12 +229,12 @@ func GetPosts(userID int, categories []string, mine bool, liked bool, sort strin
 			&post.CreatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, 0, err
 		}
 
 		post.Categories, err = GetCategoriesByPostID(post.ID)
 		if err != nil {
-			return nil, err
+			return nil, nil, 0, err
 		}
 
 		reactionState, err := GetPostReactionState(
@@ -233,7 +242,7 @@ func GetPosts(userID int, categories []string, mine bool, liked bool, sort strin
 			userID,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, 0, err
 		}
 
 		post.Likes = reactionState.Likes
@@ -246,21 +255,30 @@ func GetPosts(userID int, categories []string, mine bool, liked bool, sort strin
 			WHERE post_id = ?
 		`, post.ID).Scan(&post.Comments)
 		if err != nil {
-			return nil, err
+			return nil, nil, 0, err
 		}
 
 		posts = append(posts, post)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, nil, 0, err
 	}
 
 	if posts == nil {
 		posts = []models.PostResponse{}
 	}
 
-	return posts, nil
+	// Determine next cursor from the last post (composite: created_at + id)
+	var nextCursor *time.Time
+	var nextCursorID int
+	if len(posts) > 0 {
+		lastPost := posts[len(posts)-1]
+		nextCursor = &lastPost.CreatedAt
+		nextCursorID = lastPost.ID
+	}
+
+	return posts, nextCursor, nextCursorID, nil
 }
 
 func GetCategoriesByPostID(postID int) ([]string, error) {

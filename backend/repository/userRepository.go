@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"strings"
 	"time"
 
 	"real-time-forum/backend/models"
@@ -83,6 +84,53 @@ func GetUserByEmail(email string) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func GetUserByNickname(nickname string) (*models.User, error) {
+	var user models.User
+
+	err := database.DB.QueryRow(`
+		SELECT
+			id,
+			nickname,
+			first_name,
+			last_name,
+			email,
+			password_hash,
+			age,
+			gender,
+			avatar,
+			created_at
+		FROM users
+		WHERE nickname = ?
+	`, nickname).Scan(
+		&user.ID,
+		&user.Nickname,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.PasswordHash,
+		&user.Age,
+		&user.Gender,
+		&user.Avatar,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func GetUserByIdentifier(identifier string) (*models.User, error) {
+	// If identifier contains @, treat it as an email; otherwise treat as nickname
+	if strings.Contains(identifier, "@") {
+		return GetUserByEmail(identifier)
+	}
+	return GetUserByNickname(identifier)
 }
 
 func GetUserByID(id int) (*models.User, error) {

@@ -76,23 +76,6 @@ func (h *Hub) Run() {
 						client.Send <- event
 					}
 				}
-			case "read":
-
-				var req models.WebSocketReadRequest
-
-				err := json.Unmarshal(event.Payload, &req)
-				if err != nil {
-					continue
-				}
-
-				if clients, ok := h.clients[req.SenderID]; ok {
-					for client := range clients {
-						select {
-						case client.Send <- event:
-						default:
-						}
-					}
-				}
 			case "typing":
 
 				var req models.WebSocketTypingRequest

@@ -120,14 +120,6 @@ export const ws = {
 
     },
 
-    sendRead(senderID) {
-
-        return this.send("read", {
-            sender_id: senderID,
-        });
-
-    },
-
     on(type, callback) {
 
         if (!listeners.has(type)) {

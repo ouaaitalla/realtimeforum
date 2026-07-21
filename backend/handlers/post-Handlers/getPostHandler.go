@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"real-time-forum/backend/helpers"
 	"real-time-forum/backend/middleware"
@@ -34,12 +35,45 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	mine := r.URL.Query().Get("mine") == "true"
 	liked := r.URL.Query().Get("liked") == "true"
 
-	posts, err := repository.GetPosts(
+	// Cursor pagination (composite cursor: created_at + id)
+	cursorStr := r.URL.Query().Get("cursor")
+	cursorIDStr := r.URL.Query().Get("cursor_id")
+	limitStr := r.URL.Query().Get("limit")
+
+	limit := 10
+	if limitStr != "" {
+		parsedLimit, err := strconv.Atoi(limitStr)
+		if err == nil && parsedLimit > 0 && parsedLimit <= 50 {
+			limit = parsedLimit
+		}
+	}
+
+	var cursor *time.Time
+	var cursorID int
+
+	if cursorStr != "" {
+		parsedCursor, err := time.Parse(time.RFC3339Nano, cursorStr)
+		if err == nil {
+			cursor = &parsedCursor
+		}
+	}
+
+	if cursorIDStr != "" {
+		parsedID, err := strconv.Atoi(cursorIDStr)
+		if err == nil {
+			cursorID = parsedID
+		}
+	}
+
+	posts, nextCursor, nextCursorID, err := repository.GetPosts(
 		user.ID,
 		categories,
 		mine,
 		liked,
 		sort,
+		cursor,
+		cursorID,
+		limit,
 	)
 	if err != nil {
 
@@ -52,11 +86,26 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Build response with cursor info
+	var nextCursorStr string
+	var nextCursorIDStr string
+	if nextCursor != nil {
+		nextCursorStr = nextCursor.Format(time.RFC3339Nano)
+		nextCursorIDStr = strconv.Itoa(nextCursorID)
+	}
+
+	response := map[string]interface{}{
+		"posts":         posts,
+		"next_cursor":   nextCursorStr,
+		"next_cursor_id": nextCursorIDStr,
+		"has_more":      len(posts) >= limit,
+	}
+
 	helpers.SuccessResponse(
 		w,
 		http.StatusOK,
 		"Posts retrieved successfully",
-		posts,
+		response,
 	)
 }
 

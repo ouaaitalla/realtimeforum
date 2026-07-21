@@ -1,12 +1,17 @@
 export function messageBubble(message, currentUserID) {
 
     const isMine = message.sender_id === currentUserID;
-    console.log("sender:",message.sender_id,"current:",currentUserID);
 
     return `
         <div class="message-wrapper ${isMine ? "mine" : "other"}">
 
             <div class="message-bubble">
+
+                ${!isMine ? `
+                    <span class="message-sender">
+                        ${escapeHTML(message.sender_nickname || "Unknown")}
+                    </span>
+                ` : ""}
 
                 <p class="message-content">
                     ${escapeHTML(message.content)}
@@ -17,18 +22,6 @@ export function messageBubble(message, currentUserID) {
                     <span class="message-time">
                         ${formatMessageTime(message.created_at)}
                     </span>
-
-                    ${
-                        isMine
-                        ?
-                        `
-                        <span class="message-status">
-                            ${message.is_read ? "✓✓" : "✓"}
-                        </span>
-                        `
-                        :
-                        ""
-                    }
 
                 </div>
 

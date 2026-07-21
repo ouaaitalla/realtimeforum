@@ -32,6 +32,18 @@ export function getPostsRequest(filters = {}) {
         params.append("sort", filters.sort);
     }
 
+    if (filters.cursor) {
+        params.append("cursor", filters.cursor);
+    }
+
+    if (filters.cursor_id) {
+        params.append("cursor_id", String(filters.cursor_id));
+    }
+
+    if (filters.limit) {
+        params.append("limit", String(filters.limit));
+    }
+
     let url = "/posts";
 
     if (params.toString()) {

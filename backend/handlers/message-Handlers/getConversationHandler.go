@@ -30,7 +30,28 @@ func GetConversationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := repository.GetConversation(user.ID, otherUserID)
+	// Pagination: default limit=10, offset=0
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+
+	limit := 10
+	offset := 0
+
+	if limitStr != "" {
+		parsedLimit, err := strconv.Atoi(limitStr)
+		if err == nil && parsedLimit > 0 && parsedLimit <= 100 {
+			limit = parsedLimit
+		}
+	}
+
+	if offsetStr != "" {
+		parsedOffset, err := strconv.Atoi(offsetStr)
+		if err == nil && parsedOffset >= 0 {
+			offset = parsedOffset
+		}
+	}
+
+	messages, err := repository.GetConversation(user.ID, otherUserID, limit, offset)
 	if err != nil {
 		helpers.ErrorResponse(w, http.StatusInternalServerError, "Database error")
 		return

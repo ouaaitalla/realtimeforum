@@ -123,20 +123,26 @@ export function validateLogin(data) {
     const errors = [];
 
 
-    const emailError = validateRequired(
+    const identifierError = validateRequired(
         data.email,
-        "Email"
+        "Email or Nickname"
     );
 
-    if (emailError) {
-        errors.push(emailError);
+    if (identifierError) {
+        errors.push(identifierError);
     } else {
 
-        const emailFormatError = validateEmail(data.email);
+        // If it looks like an email (contains @), validate the format
+        if (data.email.includes("@")) {
 
-        if (emailFormatError) {
-            errors.push(emailFormatError);
+            const emailFormatError = validateEmail(data.email);
+
+            if (emailFormatError) {
+                errors.push(emailFormatError);
+            }
+
         }
+        // Otherwise treat it as a nickname — no format validation needed
     }
 
 

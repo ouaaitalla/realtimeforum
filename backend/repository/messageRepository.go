@@ -32,15 +32,19 @@ func CreateMessage(msg *models.Message) error {
 
 	err = database.DB.QueryRow(`
 		SELECT
-			id,
-			is_read,
-			created_at
-		FROM messages
-		WHERE id = ?
+			m.id,
+			m.is_read,
+			m.created_at,
+			u.nickname
+		FROM messages m
+		INNER JOIN users u
+			ON u.id = m.sender_id
+		WHERE m.id = ?
 	`, messageID).Scan(
 		&msg.ID,
 		&msg.IsRead,
 		&msg.CreatedAt,
+		&msg.SenderNickname,
 	)
 	if err != nil {
 		return err
@@ -49,26 +53,33 @@ func CreateMessage(msg *models.Message) error {
 	return nil
 }
 
-func GetConversation(userID1, userID2 int) ([]models.Message, error) {
+func GetConversation(userID1, userID2 int, limit int, offset int) ([]models.Message, error) {
 	rows, err := database.DB.Query(`
 		SELECT
-			id,
-			sender_id,
-			receiver_id,
-			content,
-			is_read,
-			created_at
-		FROM messages
+			m.id,
+			m.sender_id,
+			m.receiver_id,
+			m.content,
+			m.is_read,
+			m.created_at,
+			u.nickname
+		FROM messages m
+		INNER JOIN users u
+			ON u.id = m.sender_id
 		WHERE
-			(sender_id = ? AND receiver_id = ?)
+			(m.sender_id = ? AND m.receiver_id = ?)
 			OR
-			(sender_id = ? AND receiver_id = ?)
-		ORDER BY created_at ASC
+			(m.sender_id = ? AND m.receiver_id = ?)
+		ORDER BY m.created_at DESC
+		LIMIT ?
+		OFFSET ?
 	`,
 		userID1,
 		userID2,
 		userID2,
 		userID1,
+		limit,
+		offset,
 	)
 	if err != nil {
 		return nil, err
@@ -88,6 +99,7 @@ func GetConversation(userID1, userID2 int) ([]models.Message, error) {
 			&message.Content,
 			&message.IsRead,
 			&message.CreatedAt,
+			&message.SenderNickname,
 		)
 		if err != nil {
 			return nil, err
@@ -107,39 +119,26 @@ func GetConversation(userID1, userID2 int) ([]models.Message, error) {
 	return messages, nil
 }
 
-func MarkMessagesAsRead(receiverID, senderID int) error {
-	_, err := database.DB.Exec(`
-		UPDATE messages
-		SET is_read = 1
-		WHERE
-			receiver_id = ?
-			AND sender_id = ?
-			AND is_read = 0
-	`,
-		receiverID,
-		senderID,
-	)
-
-	return err
-}
-
 func GetLastMessage(userID1, userID2 int) (*models.Message, error) {
 	var message models.Message
 
 	err := database.DB.QueryRow(`
 		SELECT
-			id,
-			sender_id,
-			receiver_id,
-			content,
-			is_read,
-			created_at
-		FROM messages
+			m.id,
+			m.sender_id,
+			m.receiver_id,
+			m.content,
+			m.is_read,
+			m.created_at,
+			u.nickname
+		FROM messages m
+		INNER JOIN users u
+			ON u.id = m.sender_id
 		WHERE
-			(sender_id = ? AND receiver_id = ?)
+			(m.sender_id = ? AND m.receiver_id = ?)
 			OR
-			(sender_id = ? AND receiver_id = ?)
-		ORDER BY created_at DESC
+			(m.sender_id = ? AND m.receiver_id = ?)
+		ORDER BY m.created_at DESC
 		LIMIT 1
 	`,
 		userID1,
@@ -153,6 +152,7 @@ func GetLastMessage(userID1, userID2 int) (*models.Message, error) {
 		&message.Content,
 		&message.IsRead,
 		&message.CreatedAt,
+		&message.SenderNickname,
 	)
 	if err != nil {
 

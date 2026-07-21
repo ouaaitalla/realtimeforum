@@ -1,7 +1,7 @@
 import { chatTemplate } from "../templates/chatTemplate.js";
 import { getUsers } from "../services/chatService.js";
 import { render } from "../utils/render.js";
-import { connectWebSocket, on } from "../websocket/socket.js";
+import ws from "../websocket/ws.js";
 import { renderChatList, initChatList } from "../components/chatList.js";
 import { initChatWindow, openConversation, addMessage, showTyping, hideTyping, setCurrentUser} from "../components/chatWindow.js";
 import { getMe } from "../services/authService.js";
@@ -27,7 +27,7 @@ export async function chatPage() {
 
     initNavbar();
 
-    connectWebSocket();
+    ws.connect();
 
     initChatWindow();
 
@@ -102,7 +102,7 @@ async function selectUser(userID) {
 function setupSocketEvents() {
 
 
-    on(
+    ws.on(
         "message",
         (message)=>{
             const otherUserId = message.sender_id === authUser.id? message.receiver_id : message.sender_id;
@@ -137,7 +137,7 @@ function setupSocketEvents() {
 
 
 
-    on(
+    ws.on(
         "typing",
         (data)=>{
 
@@ -161,7 +161,7 @@ function setupSocketEvents() {
 
 
 
-    on("online", (onlineUsers) => {
+    ws.on("online", (onlineUsers) => {
 
         users.forEach(user => {
             user.is_online = onlineUsers.includes(user.id);
@@ -175,17 +175,7 @@ function setupSocketEvents() {
 
     });
 
-    ws.on("read", (data) => {
 
-        if (!selectedUser) return;
-
-        if (data.sender_id !== selectedUser.id) {
-            return;
-        }
-
-        updateReadReceipts();
-
-    });
 
 
 }

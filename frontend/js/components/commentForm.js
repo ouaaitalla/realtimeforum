@@ -1,6 +1,7 @@
 import { createComment } from "../services/commentService.js";
 import { showNotification } from "./notification.js";
 import { commentCard } from "./commentCard.js";
+import { initCommentReactions } from "./reactions.js";
 
 export function commentForm() {
     return `
@@ -66,6 +67,8 @@ export function initCommentForm(postId) {
                 "afterbegin",
                 commentCard(comment)
             );
+
+            initCommentReactions();
 
             textarea.value = "";
 

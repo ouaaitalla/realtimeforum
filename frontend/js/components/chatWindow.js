@@ -1,11 +1,14 @@
-import { getConversation, sendMessage, markConversationAsRead, sendTyping } from "../services/chatService.js";
+import { getConversation, sendMessage, sendTyping } from "../services/chatService.js";
 import { messageBubble } from "./messageBubble.js";
-import {ws} from "../websocket/ws.js";
+import { debounce } from "../utils/debounce.js";
 
+const PAGE_SIZE = 10;
 
 let currentReceiverID = null;
 let currentUserID = null;
-
+let currentOffset = 0;
+let hasMoreMessages = true;
+let isLoadingOlder = false;
 
 export function initChatWindow() {
 
@@ -75,6 +78,26 @@ export function initChatWindow() {
 
     });
 
+    // Setup scroll-to-top pagination with debouncing
+    const messagesContainer = document.querySelector("#chat-messages");
+
+    if (messagesContainer) {
+
+        const handleScroll = debounce(async () => {
+
+            if (isLoadingOlder || !hasMoreMessages) return;
+
+            // Detect when user scrolls near the top (within 50px)
+            if (messagesContainer.scrollTop <= 50) {
+                await loadOlderMessages();
+            }
+
+        }, 200);
+
+        messagesContainer.addEventListener("scroll", handleScroll);
+
+    }
+
 }
 
 
@@ -82,6 +105,11 @@ export function initChatWindow() {
 export async function openConversation(user) {
 
     currentReceiverID = user.id;
+
+    // Reset pagination state
+    currentOffset = 0;
+    hasMoreMessages = true;
+    isLoadingOlder = false;
 
 
     document.querySelector("#chat-user-name")
@@ -91,24 +119,92 @@ export async function openConversation(user) {
     updateUserStatus(user.is_online);
 
 
+    // Load initial page (last 10 messages in DESC order from backend)
+    const messages = await getConversation(user.id, PAGE_SIZE, 0);
 
-    const messages = await getConversation(user.id);
+    currentOffset = messages.length;
 
-    ws.sendRead(user.id);
+    if (messages.length < PAGE_SIZE) {
+        hasMoreMessages = false;
+    }
 
-    renderMessages(messages);
-
-
-
-    await markConversationAsRead(
-        user.id
-    );
+    // Backend returns DESC (newest first). Reverse for display (oldest first, newest at bottom)
+    renderMessages(messages.reverse());
 
 
     scrollToBottom();
 
 }
 
+
+async function loadOlderMessages() {
+
+    if (isLoadingOlder || !hasMoreMessages || !currentReceiverID) return;
+
+    isLoadingOlder = true;
+
+    const container = document.querySelector("#chat-messages");
+
+    if (!container) {
+        isLoadingOlder = false;
+        return;
+    }
+
+    // Create and insert loading spinner at the top of the messages container
+    const loadingIndicator = document.createElement("div");
+    loadingIndicator.className = "chat-loading-older";
+    loadingIndicator.id = "chat-loading-older";
+    loadingIndicator.innerHTML = `
+        <div class="chat-spinner"></div>
+        <span>Loading older messages...</span>
+    `;
+    container.insertBefore(loadingIndicator, container.firstChild);
+
+    // Save scroll height before adding messages
+    const previousScrollHeight = container.scrollHeight;
+
+    try {
+
+        const messages = await getConversation(currentReceiverID, PAGE_SIZE, currentOffset);
+
+        if (messages.length < PAGE_SIZE) {
+            hasMoreMessages = false;
+        }
+
+        currentOffset += messages.length;
+
+        if (messages.length === 0) {
+            isLoadingOlder = false;
+            return;
+        }
+
+        // Backend returns DESC (newest first). Reverse so oldest-first for prepending
+        const reversed = messages.reverse();
+
+        // Prepend older messages (insert before the first child)
+        reversed.forEach(message => {
+            container.insertAdjacentHTML(
+                "afterbegin",
+                messageBubble(message, currentUserID)
+            );
+        });
+
+        // Maintain scroll position after prepending
+        container.scrollTop = container.scrollHeight - previousScrollHeight;
+
+    } catch (err) {
+        console.error("Failed to load older messages:", err);
+    } finally {
+        isLoadingOlder = false;
+
+        // Remove the loading spinner
+        const spinner = document.querySelector("#chat-loading-older");
+        if (spinner) {
+            spinner.remove();
+        }
+    }
+
+}
 
 
 export function renderMessages(messages = []) {
@@ -221,12 +317,3 @@ export function setCurrentUser(userID) {
 }
 
 
-export function updateReadReceipts() {
-
-    const statuses = document.querySelectorAll(".message-status");
-
-    statuses.forEach(status => {
-        status.textContent = "✓✓";
-    });
-
-}

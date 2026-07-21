@@ -85,35 +85,6 @@ func (c *Client) ReadPump() {
 
 			c.Hub.Broadcast(event)
 
-		case "read":
-
-			var req models.WebSocketReadRequest
-
-			err := json.Unmarshal(event.Payload, &req)
-			if err != nil {
-				continue
-			}
-
-			req.ReceiverID = c.UserID
-
-			err = repository.MarkMessagesAsRead(
-				req.ReceiverID,
-				req.SenderID,
-			)
-			if err != nil {
-				continue
-			}
-
-			payload, err := json.Marshal(req)
-			if err != nil {
-				continue
-			}
-
-			c.Hub.Broadcast(models.WebSocketEvent{
-				Type:    "read",
-				Payload: payload,
-			})
-
 		case "typing":
 
 			var req models.WebSocketTypingRequest

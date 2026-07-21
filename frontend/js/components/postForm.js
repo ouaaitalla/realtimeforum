@@ -1,7 +1,8 @@
 import { createPost } from "../services/postService.js";
 import { closeModal } from "./modal.js";
 import { showNotification } from "./notification.js";
-import { postCard } from "./postCard.js";
+import { postCard, initPostCards } from "./postCard.js";
+import { initPostReactions } from "./reactions.js";
 
 
 
@@ -113,6 +114,9 @@ export function initCreatePostForm() {
                     "afterbegin",
                     postCard(newPost)
                 );
+
+                initPostCards();
+                initPostReactions();
             }
         } catch (error) {
             showNotification(

@@ -19,6 +19,8 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req models.CreatePostRequest
 
+	r.Body = http.MaxBytesReader(w, r.Body, 10240)
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return

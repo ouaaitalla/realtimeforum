@@ -149,6 +149,8 @@ func TogglePostReactionHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req models.ReactionRequest
 
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.ErrorResponse(
 			w,

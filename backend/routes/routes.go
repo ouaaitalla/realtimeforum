@@ -2,7 +2,6 @@ package routes
 
 import (
 	"net/http"
-	"strings"
 
 	"real-time-forum/backend/handlers/authHandlers"
 	categoryhandlers "real-time-forum/backend/handlers/category-Handlers"
@@ -57,14 +56,7 @@ func SetupRoutes() http.Handler {
 	mux.Handle("/users", usersHandler)
 
 	messagesHandler := middleware.AuthMiddleware(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if strings.HasPrefix(r.URL.Path, "/messages/read/") {
-				messagehandlers.MarkAsReadHandler(w, r)
-				return
-			}
-
-			messagehandlers.GetConversationHandler(w, r)
-		}),
+		http.HandlerFunc(messagehandlers.GetConversationHandler),
 	)
 
 	mux.Handle("/messages/", messagesHandler)

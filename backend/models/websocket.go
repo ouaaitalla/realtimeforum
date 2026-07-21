@@ -7,12 +7,6 @@ type WebSocketEvent struct {
 	Payload json.RawMessage `json:"payload"`
 }
 
-
-type WebSocketReadRequest struct {
-	SenderID   int `json:"sender_id"`
-	ReceiverID int `json:"receiver_id"`
-}
-
 type WebSocketTypingRequest struct {
 	SenderID   int  `json:"sender_id,omitempty"`
 	ReceiverID int  `json:"receiver_id"`

@@ -18,6 +18,8 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req models.RegisterRequest
 
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.ErrorResponse(w, http.StatusBadRequest, "Invalid request body")
 		return
@@ -28,10 +30,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		req.LastName == "" ||
 		req.Email == "" ||
 		req.Password == "" ||
+		len(req.Password) < 6 ||
 		req.Gender != "Male" && req.Gender != "Female" ||
 		req.Age <= 13 {
 
-		helpers.ErrorResponse(w, http.StatusBadRequest, "All fields are required")
+		helpers.ErrorResponse(w, http.StatusBadRequest, "Invalid fields: all fields are required, password must be at least 6 characters")
 		return
 	}
 

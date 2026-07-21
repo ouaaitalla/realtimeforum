@@ -35,6 +35,8 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req models.CreateCommentRequest
 
+	r.Body = http.MaxBytesReader(w, r.Body, 2048)
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 
 		helpers.ErrorResponse(
@@ -215,6 +217,8 @@ func ToggleCommentReactionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req models.ReactionRequest
+
+	r.Body = http.MaxBytesReader(w, r.Body, 1024)
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		helpers.ErrorResponse(

@@ -12,10 +12,10 @@ export function loginTemplate() {
 
 
                     <input
-                        type="email"
+                        type="text"
                         id="email"
                         name="email"
-                        placeholder="Email"
+                        placeholder="Email or Nickname"
                         required
                     >
 

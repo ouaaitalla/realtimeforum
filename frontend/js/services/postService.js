@@ -6,7 +6,13 @@ export async function createPost(post) {
 }  
 
 export async function getPosts(filters = {}) {
-    return (await getPostsRequest(filters)).data;
+    const data = (await getPostsRequest(filters)).data;
+    return data.posts || [];
+}
+
+export async function getPostsWithCursor(filters = {}) {
+    const response = await getPostsRequest(filters);
+    return response.data;
 }
 
 
